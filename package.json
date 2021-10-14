@@ -22,6 +22,7 @@
     "@schematics/angular": "^12.2.9",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
+    "jasmine-core": "^3.10.0",
     "mocha": "^9.1.2",
     "ts-node": "^10.3.0"
   }
