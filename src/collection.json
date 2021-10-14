@@ -2,11 +2,23 @@
   "$schema": "../node_modules/@angular-devkit/schematics/collection-schema.json",
   "extends": ["@schematics/angular"],
   "schematics": {
+    "linnify-component": {
+      "aliases": ["lc"],
+      "description": "A new component schematic.",
+      "factory": "./component/index#component",
+      "schema": "./component/schema.json"
+    },
     "linnify-module": {
       "aliases": ["lm"],
       "description": "A new module schematic.",
       "factory": "./module/index#module",
       "schema": "./module/schema.json"
     },
+    "linnify-service": {
+      "aliases": ["ls"],
+      "description": "A new service schematic.",
+      "factory": "./service/index#service",
+      "schema": "./service/schema.json"
+    }
   }
 }

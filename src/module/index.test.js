@@ -46,4 +46,3 @@ describe('linnify-schematics', () => {
         expect(tree.files.includes('/projects/bar/src/app/foo/foo.module.ts'));
     }));
 });
-//# sourceMappingURL=index.test.js.map

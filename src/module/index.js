@@ -74,4 +74,3 @@ function createTemplateSource(modulePath, directory) {
         schematics_1.move(core_1.normalize(modulePath))
     ]);
 }
-//# sourceMappingURL=index.js.map
