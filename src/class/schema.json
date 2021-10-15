@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Linnify-schematics-class",
+  "title": "Linnify Class Options Schema",
+  "type": "object",
+  "description": "Create a class corresponding to the Linnify styleguide",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the new class.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for the class?"
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the class, relative to the workspace root.",
+      "visible": false
+    },
+    "project": {
+      "type": "string",
+      "description": "The name of the project.",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "skipTests": {
+      "type": "boolean",
+      "description": "Do not create \"spec.ts\" test files for the new class.",
+      "default": true,
+      "x-user-analytics": 12
+    },
+    "type": {
+      "type": "string",
+      "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
+      "default": "class"
+    },
+    "lintFix": {
+      "type": "boolean",
+      "default": false,
+      "description": "Apply lint fixes after generating the class.",
+      "x-user-analytics": 15,
+      "x-deprecated": "Use \"ng lint --fix\" directly instead."
+    }
+  },
+  "required": ["name"]
+}

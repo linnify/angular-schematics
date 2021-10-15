@@ -1,8 +1,8 @@
-import {chain, externalSchematic, Rule, Tree} from '@angular-devkit/schematics';
+import {chain, Rule, Tree} from '@angular-devkit/schematics';
 import {Schema} from './schema';
 import {addDeclarationToIndexFile} from '../utils/imports-utils';
 
-import {setOptions} from '../utils/shared-utils';
+import {generateComponentExternal, setOptions} from '../utils/shared-utils';
 
 const core_1 = require("@angular-devkit/core");
 const validation_1 = require("@schematics/angular/utility/validation");
@@ -18,10 +18,6 @@ function buildSelector(options, projectPrefix) {
   return selector;
 }
 
-function generateComponentExternal(_options: any): Rule{
-  return externalSchematic('@schematics/angular', 'component', _options);
-}
-
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
 export function component(options: Schema): Rule {
@@ -34,7 +30,7 @@ export function component(options: Schema): Rule {
     options.type = options.type != null ? options.type : 'Component';
 
     return chain([
-      generateComponentExternal(options),
+      generateComponentExternal(options, 'component'),
       addDeclarationToIndexFile(options)
     ]);
   };

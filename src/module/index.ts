@@ -6,6 +6,7 @@ import {join, normalize} from '@angular-devkit/core';
 import {linnifyModule} from './utils/generate-module.utils';
 
 import {parseName} from '@schematics/angular/utility/parse-name';
+import {createDirectoryTemplateSource} from '../utils/shared-utils';
 const workspace_1 = require("@schematics/angular/utility/workspace");
 const find_module_1 = require("@schematics/angular/utility/find-module");
 
@@ -39,27 +40,27 @@ function createTemplateSources(modulePath: string, options: Schema): Source[] {
   const templateSources: Source[] = [];
 
   if (options.components) {
-    templateSources.push(createTemplateSource(modulePath, 'components'));
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'components'));
   }
 
   if (options.containers) {
-    templateSources.push(createTemplateSource(modulePath, 'containers'));
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'containers'));
   }
 
   if (options.directives) {
-    templateSources.push(createTemplateSource(modulePath, 'directives'));
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'directives'));
   }
 
   if (options.guards) {
-    templateSources.push(createTemplateSource(modulePath, 'guards'));
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'guards'));
   }
 
   if (options.pipes) {
-    templateSources.push(createTemplateSource(modulePath, 'pipes'));
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'pipes'));
   }
 
   if (options.services) {
-    templateSources.push(createTemplateSource(modulePath, 'services'));
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'services'));
   }
 
   if(options.types){
@@ -72,12 +73,5 @@ function createTemplateSources(modulePath: string, options: Schema): Source[] {
   return templateSources;
 }
 
-function createTemplateSource(modulePath: string, directory: string): Source {
-  return apply(url('./files/directories'), [
-    applyTemplates({
-      name: directory
-    }),
-    move(normalize(modulePath as string))
-  ]);
-}
+
 

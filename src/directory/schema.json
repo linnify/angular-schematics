@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Linnify-schematics-directory",
+  "title": "Linnify Directory Options Schema",
+  "type": "object",
+  "description": "Create a directory corresponding to the Linnify styleguide",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Specifies which directory to create.",
+      "enum": ["components", "containers", "directives", "guards", "pipes", "services", "types", "repositories"],
+      "x-prompt": "Which directory would you like to include?"
+    },
+    "export": {
+      "type": "boolean",
+      "description": "Specifies if the directory should be exported from the NgModule.",
+      "default": false
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the directory, relative to the current workspace.",
+      "visible": false
+    },
+    "module": {
+      "type": "string",
+      "description": "The declaring NgModule.",
+      "alias": "m"
+    },
+    "project": {
+      "type": "string",
+      "description": "The name of the project.",
+      "$default": {
+        "$source": "projectName"
+      }
+    }
+  },
+  "required": ["name"]
+}

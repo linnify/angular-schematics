@@ -1,7 +1,7 @@
 import {Schema as ServiceSchema} from '@schematics/angular/service/schema';
 
 export interface Schema extends ServiceSchema {
-  skipLinnifyImport: boolean;
+  skipIndexImport: boolean;
   type: string;
-  export: boolean;
+  indexExport: boolean;
 }

@@ -9,36 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.component = void 0;
+exports.repository = void 0;
 const schematics_1 = require("@angular-devkit/schematics");
 const imports_utils_1 = require("../utils/imports-utils");
 const shared_utils_1 = require("../utils/shared-utils");
-const core_1 = require("@angular-devkit/core");
-const validation_1 = require("@schematics/angular/utility/validation");
-function buildSelector(options, projectPrefix) {
-    let selector = core_1.strings.dasherize(options.name);
-    if (options.prefix) {
-        selector = `${options.prefix}-${selector}`;
-    }
-    else if (options.prefix === undefined && projectPrefix) {
-        selector = `${projectPrefix}-${selector}`;
-    }
-    return selector;
-}
-// You don't have to export the function as default. You can also have more than one rule factory
-// per file.
-function component(options) {
+function repository(options) {
     return (host) => __awaiter(this, void 0, void 0, function* () {
-        const project = yield shared_utils_1.setOptions(host, options);
-        options.selector =
-            options.selector || buildSelector(options, (project && project.prefix) || '');
-        validation_1.validateName(options.name);
-        validation_1.validateHtmlSelector(options.selector);
-        options.type = options.type != null ? options.type : 'Component';
+        yield shared_utils_1.setOptions(host, options);
+        options.type = 'repository';
+        const flat = options.flat;
+        options.flat = true;
         return schematics_1.chain([
-            shared_utils_1.generateComponentExternal(options, 'component'),
+            shared_utils_1.generateFromFiles(options, {
+                'if-flat': (s) => (flat ? '' : s),
+            }),
             imports_utils_1.addDeclarationToIndexFile(options)
         ]);
     });
 }
-exports.component = component;
+exports.repository = repository;

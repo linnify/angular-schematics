@@ -1,4 +1,5 @@
-import {Tree} from '@angular-devkit/schematics';
+import {apply, applyTemplates, externalSchematic, move, Rule, Source, Tree, url} from '@angular-devkit/schematics';
+import {normalize} from '@angular-devkit/core';
 
 const schematics_1 = require("@angular-devkit/schematics");
 const parse_name_1 = require("@schematics/angular/utility/parse-name");
@@ -43,4 +44,17 @@ export function generateFromFiles(options, extraTemplateValues = {}) {
       options.lintFix ? lint_fix_1.applyLintFix(options.path) : schematics_1.noop(),
     ]);
   };
+}
+
+export function generateComponentExternal(_options: any, schematic: string): Rule{
+  return externalSchematic('@schematics/angular', schematic, _options);
+}
+
+export function createDirectoryTemplateSource(modulePath: string, directory: string): Source {
+  return apply(url('../module/files/directories'), [
+    applyTemplates({
+      name: directory
+    }),
+    move(normalize(modulePath as string))
+  ]);
 }

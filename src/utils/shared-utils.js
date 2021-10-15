@@ -9,7 +9,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.generateFromFiles = exports.setOptions = void 0;
+exports.createDirectoryTemplateSource = exports.generateComponentExternal = exports.generateFromFiles = exports.setOptions = void 0;
+const schematics_2 = require("@angular-devkit/schematics");
+const core_2 = require("@angular-devkit/core");
 const schematics_1 = require("@angular-devkit/schematics");
 const parse_name_1 = require("@schematics/angular/utility/parse-name");
 const workspace_1 = require("@schematics/angular/utility/workspace");
@@ -49,3 +51,16 @@ function generateFromFiles(options, extraTemplateValues = {}) {
     });
 }
 exports.generateFromFiles = generateFromFiles;
+function generateComponentExternal(_options, schematic) {
+    return schematics_2.externalSchematic('@schematics/angular', schematic, _options);
+}
+exports.generateComponentExternal = generateComponentExternal;
+function createDirectoryTemplateSource(modulePath, directory) {
+    return schematics_2.apply(schematics_2.url('../module/files/directories'), [
+        schematics_2.applyTemplates({
+            name: directory
+        }),
+        schematics_2.move(core_2.normalize(modulePath))
+    ]);
+}
+exports.createDirectoryTemplateSource = createDirectoryTemplateSource;

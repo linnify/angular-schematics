@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/schema",
-  "$id": "Linnify-schematics-service",
-  "title": "Linnify Service Options Schema",
+  "$id": "Linnify-schematics-repository",
+  "title": "Linnify Repository Options Schema",
   "type": "object",
-  "description": "Create a service corresponding to the Linnify styleguide",
+  "description": "Create a repository corresponding to the Linnify styleguide",
   "properties": {
     "name": {
       "type": "string",
@@ -51,7 +51,7 @@
     },
     "type": {
       "type": "string",
-      "default": "service",
+      "default": "repository",
       "hidden": "true"
     },
     "indexExport": {

@@ -14,6 +14,7 @@ const schematics_1 = require("@angular-devkit/schematics");
 const core_1 = require("@angular-devkit/core");
 const generate_module_utils_1 = require("./utils/generate-module.utils");
 const parse_name_1 = require("@schematics/angular/utility/parse-name");
+const shared_utils_1 = require("../utils/shared-utils");
 const workspace_1 = require("@schematics/angular/utility/workspace");
 const find_module_1 = require("@schematics/angular/utility/find-module");
 // You don't have to export the function as default. You can also have more than one rule factory
@@ -41,22 +42,22 @@ exports.module = module;
 function createTemplateSources(modulePath, options) {
     const templateSources = [];
     if (options.components) {
-        templateSources.push(createTemplateSource(modulePath, 'components'));
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'components'));
     }
     if (options.containers) {
-        templateSources.push(createTemplateSource(modulePath, 'containers'));
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'containers'));
     }
     if (options.directives) {
-        templateSources.push(createTemplateSource(modulePath, 'directives'));
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'directives'));
     }
     if (options.guards) {
-        templateSources.push(createTemplateSource(modulePath, 'guards'));
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'guards'));
     }
     if (options.pipes) {
-        templateSources.push(createTemplateSource(modulePath, 'pipes'));
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'pipes'));
     }
     if (options.services) {
-        templateSources.push(createTemplateSource(modulePath, 'services'));
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'services'));
     }
     if (options.types) {
         templateSources.push(schematics_1.apply(schematics_1.url('./files/_types'), [
@@ -65,12 +66,4 @@ function createTemplateSources(modulePath, options) {
         ]));
     }
     return templateSources;
-}
-function createTemplateSource(modulePath, directory) {
-    return schematics_1.apply(schematics_1.url('./files/directories'), [
-        schematics_1.applyTemplates({
-            name: directory
-        }),
-        schematics_1.move(core_1.normalize(modulePath))
-    ]);
 }

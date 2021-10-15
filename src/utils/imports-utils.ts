@@ -26,7 +26,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 
 import {InsertChange} from '@schematics/angular/utility/change';
-import {Rule} from '@angular-devkit/schematics';
+import {Rule, Tree} from '@angular-devkit/schematics';
 import {join, normalize} from '@angular-devkit/core';
 
 const schematics_1 = require("@angular-devkit/schematics");
@@ -129,8 +129,7 @@ function findModuleFromOptions(host, options) {
   if (!options.module) {
     const pathToCheck = (options.path || '') + '/' + options.name;
     return core_1.normalize(find_module_1.findModule(host, pathToCheck, moduleExt, routingModuleExt));
-  }
-  else {
+  } else {
     const modulePath = core_1.normalize(`/${options.path}/${options.module}`);
     const componentPath = core_1.normalize(`/${options.path}/${options.name}`);
     const moduleBaseName = core_1.normalize(modulePath).split('/').pop();
@@ -159,10 +158,10 @@ function findModuleFromOptions(host, options) {
   }
 }
 
-export function addDeclarationToIndexFile(options: any): Rule{
+export function addDeclarationToIndexFile(options: any): Rule {
   return (host) => {
     options.module = findModuleFromOptions(host, options);
-    if (options.skipLinnifyImport || !options.module) {
+    if (options.skipIndexImport || !options.module) {
       return host;
     }
 
@@ -185,7 +184,7 @@ export function addDeclarationToIndexFile(options: any): Rule{
       }
     }
     host.commitUpdate(declarationRecorder);
-    if (options.export) {
+    if (options.indexExport) {
       // Need to refresh the AST because we overwrote the file in the host.
       const source = readIntoSourceFile(host, indexPath);
       const exportRecorder = host.beginUpdate(indexPath);
@@ -197,6 +196,185 @@ export function addDeclarationToIndexFile(options: any): Rule{
       }
       host.commitUpdate(exportRecorder);
     }
+    return host;
+  }
+}
+
+export function addClassExportToIndexFile(options: any): Rule {
+  return (host: Tree) => {
+    options.module = findModuleFromOptions(host, options);
+    if (options.skipIndexImport || !options.module) {
+      return host;
+    }
+
+    const indexPath = join(normalize(options.path), 'index.ts');
+
+    const source = readIntoSourceFile(host, indexPath);
+
+    const componentRelativePath = core_1.strings.dasherize(options.name) +
+      (options.type ? '.' : '') +
+      core_1.strings.dasherize(options.type);
+    const relativePath = './' + componentRelativePath;
+    const classifiedName = core_1.strings.classify(options.name) + core_1.strings.classify(options.type);
+
+    const exportRecorder = host.beginUpdate(indexPath);
+    const exportChanges = addExportToIndex(source, indexPath, classifiedName, relativePath);
+    for (const change of exportChanges) {
+      if (change instanceof change_1.InsertChange) {
+        exportRecorder.insertLeft(change.pos, change.toAdd);
+      }
+    }
+    host.commitUpdate(exportRecorder);
+  }
+}
+
+function insertDirectoryImport(source, fileToEdit, directoryName) {
+  const rootNode = source;
+  const allImports = ast_utils_1.findNodes(rootNode, ts_1.SyntaxKind.ImportDeclaration);
+  const useStrict = ast_utils_1.findNodes(rootNode, ts_1.isStringLiteral).filter((n) => n.text === 'use strict');
+  let fallbackPos = 0;
+  if (useStrict.length > 0) {
+    fallbackPos = useStrict[0].end;
+  }
+  const toInsert = `import * as ${core_1.strings.camelize('from-' + directoryName)} from './${directoryName}';\n`;
+  return insertAfterLastOccurrence(allImports, toInsert, fileToEdit, fallbackPos, ts_1.SyntaxKind.StringLiteral);
+}
+
+function addSymbolToNgModuleMetadata(source, ngModulePath, metadataField, directoryName, symbolName, importStatement = true) {
+  const nodes = ast_utils_1.getDecoratorMetadata(source, 'NgModule', '@angular/core');
+  let node = nodes[0]; // eslint-disable-line @typescript-eslint/no-explicit-any
+  // Find the decorator declaration.
+  if (!node) {
+    return [];
+  }
+  // Get all the children property assignment of object literals.
+  const matchingProperties = ast_utils_1.getMetadataField(node, metadataField);
+  if (matchingProperties.length == 0) {
+    // We haven't found the field in the metadata declaration. Insert a new field.
+    const expr = node;
+    let position;
+    let toInsert;
+    if (expr.properties.length == 0) {
+      position = expr.getEnd() - 1;
+      toInsert = `\n  ${metadataField}: [\n${core_1.tags.indentBy(4)`${symbolName}`}\n  ]\n`;
+    } else {
+      node = expr.properties[expr.properties.length - 1];
+      position = node.getEnd();
+      // Get the indentation of the last element, if any.
+      const text = node.getFullText(source);
+      const matches = text.match(/^(\r?\n)(\s*)/);
+      if (matches) {
+        toInsert =
+          `,${matches[0]}${metadataField}: [${matches[1]}` +
+          `${core_1.tags.indentBy(matches[2].length + 2)`${symbolName}`}${matches[0]}]`;
+      } else {
+        toInsert = `, ${metadataField}: [${symbolName}]`;
+      }
+    }
+    if (importStatement) {
+      return [
+        new change_1.InsertChange(ngModulePath, position, toInsert),
+        insertDirectoryImport(source, ngModulePath, directoryName)
+      ];
+    }
+    return [
+      new change_1.InsertChange(ngModulePath, position, toInsert)
+    ];
+  }
+  const assignment = matchingProperties[0];
+  // If it's not an array, nothing we can do really.
+  if (assignment.initializer.kind !== ts_1.SyntaxKind.ArrayLiteralExpression) {
+    return [];
+  }
+  const arrLiteral = assignment.initializer;
+  if (arrLiteral.elements.length == 0) {
+    // Forward the property.
+    node = arrLiteral;
+  } else {
+    node = arrLiteral.elements;
+  }
+  if (Array.isArray(node)) {
+    const nodeArray = node;
+    const symbolsArray = nodeArray.map((node) => core_1.tags.oneLine`${node.getText()}`);
+    if (symbolsArray.includes(core_1.tags.oneLine`${symbolName}`)) {
+      return [];
+    }
+    node = node[node.length - 1];
+  }
+  let toInsert;
+  let position = node.getEnd();
+  if (node.kind == ts_1.SyntaxKind.ArrayLiteralExpression) {
+    // We found the field but it's empty. Insert it just before the `]`.
+    position--;
+    toInsert = `\n${core_1.tags.indentBy(4)`${symbolName}`}\n  `;
+  } else {
+    // Get the indentation of the last element, if any.
+    const text = node.getFullText(source);
+    const matches = text.match(/^(\r?\n)(\s*)/);
+    if (matches) {
+      toInsert = `,${matches[1]}${core_1.tags.indentBy(matches[2].length)`${symbolName}`}`;
+    } else {
+      toInsert = `, ${symbolName}`;
+    }
+  }
+  if (importStatement) {
+    return [
+      new change_1.InsertChange(ngModulePath, position, toInsert),
+      insertDirectoryImport(source, ngModulePath, directoryName)
+    ];
+  }
+  return [
+    new change_1.InsertChange(ngModulePath, position, toInsert)
+  ];
+}
+
+export function addDeclarationToModuleFile(options: any): Rule {
+  return (host) => {
+    if (!options.module) {
+      return host;
+    }
+    const modulePath = options.module;
+    let metadataField;
+
+    switch (options.name) {
+      case 'components':
+      case 'containers':
+      case 'directives':
+        metadataField = 'declarations';
+        break;
+      case 'services':
+      case 'guards':
+      case 'pipes':
+      case 'repositories':
+        metadataField = 'providers';
+        break;
+    }
+
+    const symbolName = `...${core_1.strings.camelize('from-' + options.name)}.${options.name}`;
+
+    const source = readIntoSourceFile(host, modulePath);
+    const declarationChanges = addSymbolToNgModuleMetadata(source, modulePath, metadataField, options.name, symbolName);
+    const declarationRecorder = host.beginUpdate(modulePath);
+    for (const change of declarationChanges) {
+      if (change instanceof change_1.InsertChange) {
+        declarationRecorder.insertLeft(change.pos, change.toAdd);
+      }
+    }
+    host.commitUpdate(declarationRecorder);
+
+    if (options.export) {
+      // Need to refresh the AST because we overwrote the file in the host.
+      const _source = readIntoSourceFile(host, modulePath);
+      const _exportRecorder = host.beginUpdate(modulePath);
+      const _exportChanges = addSymbolToNgModuleMetadata(_source, modulePath, 'exports', options.name, symbolName, false);
+      for (const _change of _exportChanges) {
+        if (_change instanceof change_1.InsertChange) {
+          _exportRecorder.insertLeft(_change.pos, _change.toAdd);
+        }
+      }
+      host.commitUpdate(_exportRecorder);
+    }
+
     return host;
   }
 }

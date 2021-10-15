@@ -19,6 +19,51 @@
       "description": "A new service schematic.",
       "factory": "./service/index#service",
       "schema": "./service/schema.json"
+    },
+    "linnify-directive": {
+      "aliases": ["ld"],
+      "description": "A new directive schematic.",
+      "factory": "./directive/index#directive",
+      "schema": "./directive/schema.json"
+    },
+    "linnify-guard": {
+      "aliases": ["lg"],
+      "description": "A new guard schematic.",
+      "factory": "./guard/index#guard",
+      "schema": "./guard/schema.json"
+    },
+    "linnify-pipe": {
+      "aliases": ["lp"],
+      "description": "A new pipe schematic.",
+      "factory": "./pipe/index#pipe",
+      "schema": "./pipe/schema.json"
+    },
+    "linnify-directory": {
+      "aliases": ["l-dir"],
+      "description": "A new directory schematic.",
+      "factory": "./directory/index#directory",
+      "schema": "./directory/schema.json"
+    },
+    "class": {
+      "description": "A new class schematic.",
+      "factory": "./class/index#classSchematics",
+      "schema": "./class/schema.json"
+    },
+    "enum": {
+      "description": "A new enum schematic.",
+      "factory": "./enum/index#enumSchematics",
+      "schema": "./enum/schema.json"
+    },
+    "interface": {
+      "description": "A new interface schematic.",
+      "factory": "./interface/index#interfaceSchematics",
+      "schema": "./interface/schema.json"
+    },
+    "repository": {
+      "aliases": ["repo"],
+      "description": "A new repository schematic.",
+      "factory": "./repository/index#repository",
+      "schema": "./repository/schema.json"
     }
   }
 }

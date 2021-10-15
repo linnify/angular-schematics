@@ -1,0 +1,48 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "$id": "Linnify-schematics-interface",
+  "title": "Linnify Interface Options Schema",
+  "type": "object",
+  "description": "Create an interface corresponding to the Linnify styleguide",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the interface.",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      },
+      "x-prompt": "What name would you like to use for the interface?"
+    },
+    "path": {
+      "type": "string",
+      "format": "path",
+      "description": "The path at which to create the interface, relative to the workspace root.",
+      "visible": false
+    },
+    "project": {
+      "type": "string",
+      "description": "The name of the project.",
+      "$default": {
+        "$source": "projectName"
+      }
+    },
+    "prefix": {
+      "type": "string",
+      "default": "",
+      "description": "A prefix to apply to generated selectors."
+    },
+    "type": {
+      "type": "string",
+      "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
+      "default": "interface"
+    },
+    "lintFix": {
+      "type": "boolean",
+      "description": "Apply lint fixes after generating the interface.",
+      "x-user-analytics": 15,
+      "x-deprecated": "Use \"ng lint --fix\" directly instead."
+    }
+  },
+  "required": ["name"]
+}

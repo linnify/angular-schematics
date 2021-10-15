@@ -7,6 +7,7 @@ export interface Schema extends ModuleSchema{
   guards: boolean;
   pipes: boolean;
   services: boolean;
+  repositories: boolean;
   types: boolean;
   sharedModule: boolean;
 }

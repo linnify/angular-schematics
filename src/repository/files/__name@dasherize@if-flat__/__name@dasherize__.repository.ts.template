@@ -1,0 +1,12 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+
+@Injectable()
+export class <%= classify(name) %>Repository {
+
+  constructor(private http: HttpClient) {}
+
+  get url(): string {
+    return '<%= name %>';
+  }
+}

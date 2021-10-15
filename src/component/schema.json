@@ -43,7 +43,7 @@
     "inlineTemplate": {
       "description": "Include template inline in the component.ts file. By default, an external template file is created and referenced in the component.ts file.",
       "type": "boolean",
-      "default": false,
+      "default": true,
       "alias": "t",
       "x-user-analytics": 10
     },
@@ -132,7 +132,7 @@
       "description": "The declaring NgModule.",
       "alias": "m"
     },
-    "export": {
+    "indexExport": {
       "type": "boolean",
       "default": true,
       "description": "The index file exports this component.",
@@ -144,7 +144,7 @@
       "x-user-analytics": 15,
       "x-deprecated": "Use \"ng lint --fix\" directly instead."
     },
-    "skipLinnifyImport": {
+    "skipIndexImport": {
       "type": "boolean",
       "description": "Do not import component in index file",
       "default": false

@@ -18,12 +18,11 @@ import * as fromGuards from './guards';<% } %>
 @NgModule({
   declarations: [<% if (components) { %>
     ...fromComponents.components<% } %><% if (containers) { %>,
-    ...fromContainers.containers<% } %><% if (pipes) { %>,
-    ...fromPipes.pipes<% } %><% if (directives) { %>,
+    ...fromContainers.containers<% } %><% if (directives) { %>,
     ...fromDirectives.directives<% } %>
   ],
   imports: [
-    <% if (sharedModule) { %>SharedModule<% } %><% if (commonModule) { %><% if (sharedModule) { %>,<% } %> CommonModule<% } %><% if (routing || lazyRouteWithRouteModule) { %><% if (commonModule || sharedModule) { %>,<% } %> <%= classify(name) %>RoutingModule<% } %><% if (lazyRouteWithoutRouteModule) { %>, RouterModule.forChild(routes)<% } %>
+     <% if (sharedModule) { %>SharedModule<% } %><% if (commonModule) { %><% if (sharedModule) { %>,<% } %> CommonModule<% } %><% if (routing || lazyRouteWithRouteModule) { %><% if (commonModule || sharedModule) { %>,<% } %> <%= classify(name) %>RoutingModule<% } %><% if (lazyRouteWithoutRouteModule) { %>, RouterModule.forChild(routes)<% } %>
   ]<% if(services || guards || pipes) { %>,
   providers: [<% if (services) { %>
     ...fromServices.services<% } %><% if (guards) { %>,
