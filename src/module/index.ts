@@ -63,6 +63,10 @@ function createTemplateSources(modulePath: string, options: Schema): Source[] {
     templateSources.push(createDirectoryTemplateSource(modulePath, 'services'));
   }
 
+  if (options.repositories) {
+    templateSources.push(createDirectoryTemplateSource(modulePath, 'repositories'));
+  }
+
   if(options.types){
     templateSources.push(apply(url('./files/_types'), [
       applyTemplates({}),

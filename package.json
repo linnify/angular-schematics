@@ -1,6 +1,6 @@
 {
   "name": "@linnify/angular-schematics",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A new schematics that follows the Linnify styleguide for creating Angular projects",
   "scripts": {
     "build": "tsc -p tsconfig.json",

@@ -110,6 +110,11 @@
       "description": "Whether the services directory should be create in the module or not",
       "default": true
     },
+    "repositories": {
+      "type": "boolean",
+      "description": "Whether the repositories directory should be create in the module or not",
+      "default": false
+    },
     "types": {
       "type": "boolean",
       "description": "Whether the types directory should be create in the module or not",

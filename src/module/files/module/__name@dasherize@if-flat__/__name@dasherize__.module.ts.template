@@ -13,7 +13,8 @@ import * as fromContainers from './containers';<% } %><% if (services) { %>
 import * as fromServices from './services';<% } %><% if (pipes) { %>
 import * as fromPipes from './pipes';<% } %><% if (directives) { %>
 import * as fromDirectives from './directives';<% } %><% if (guards) { %>
-import * as fromGuards from './guards';<% } %>
+import * as fromGuards from './guards';<% } %><% if (repositories) { %>
+import * as fromRepositories from './repositories';<% } %>
 
 @NgModule({
   declarations: [<% if (components) { %>
@@ -27,7 +28,8 @@ import * as fromGuards from './guards';<% } %>
   providers: [<% if (services) { %>
     ...fromServices.services<% } %><% if (guards) { %>,
     ...fromGuards.guards<% } %><% if (pipes) { %>,
-    ...fromPipes.pipes<% } %>
+    ...fromPipes.pipes<% } %><% if (repositories) { %>,
+    ...fromRepositories.repositories<% } %>
   ]<% } %>
 })
 export class <%= classify(name) %>Module { }

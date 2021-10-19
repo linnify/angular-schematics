@@ -59,6 +59,9 @@ function createTemplateSources(modulePath, options) {
     if (options.services) {
         templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'services'));
     }
+    if (options.repositories) {
+        templateSources.push(shared_utils_1.createDirectoryTemplateSource(modulePath, 'repositories'));
+    }
     if (options.types) {
         templateSources.push(schematics_1.apply(schematics_1.url('./files/_types'), [
             schematics_1.applyTemplates({}),

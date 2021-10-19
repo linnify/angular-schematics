@@ -9,7 +9,11 @@
       "type": "string",
       "description": "Specifies which directory to create.",
       "enum": ["components", "containers", "directives", "guards", "pipes", "services", "types", "repositories"],
-      "x-prompt": "Which directory would you like to include?"
+      "x-prompt": "Which directory would you like to include?",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
     },
     "export": {
       "type": "boolean",
