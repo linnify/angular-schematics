@@ -30,7 +30,7 @@
     "routing": {
       "type": "boolean",
       "description": "Create a routing module.",
-      "default": false,
+      "default": true,
       "x-user-analytics": 17
     },
     "routingScope": {
