@@ -41,7 +41,6 @@ function guard(options) {
         const implementationImports = routerNamedImports.join(', ');
         yield shared_utils_1.setOptions(host, options);
         options.type = 'guard';
-        console.log(implementations);
         return schematics_2.chain([
             shared_utils_1.generateFromFiles(options, {
                 implementations,

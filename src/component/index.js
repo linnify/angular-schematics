@@ -35,8 +35,11 @@ function component(options) {
         validation_1.validateName(options.name);
         validation_1.validateHtmlSelector(options.selector);
         options.type = options.type != null ? options.type : 'Component';
+        const componentOptions = Object.assign({}, options);
+        delete componentOptions.skipIndexImport;
+        delete componentOptions.indexExport;
         return schematics_1.chain([
-            shared_utils_1.generateComponentExternal(options, 'component'),
+            shared_utils_1.generateComponentExternal(componentOptions, 'component'),
             imports_utils_1.addDeclarationToIndexFile(options)
         ]);
     });

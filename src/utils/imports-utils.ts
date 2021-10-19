@@ -340,11 +340,11 @@ export function addDeclarationToModuleFile(options: any): Rule {
       case 'components':
       case 'containers':
       case 'directives':
+      case 'pipes':
         metadataField = 'declarations';
         break;
       case 'services':
       case 'guards':
-      case 'pipes':
       case 'repositories':
         metadataField = 'providers';
         break;
@@ -361,6 +361,19 @@ export function addDeclarationToModuleFile(options: any): Rule {
       }
     }
     host.commitUpdate(declarationRecorder);
+
+    if(options.name === "pipes"){
+      // need to also add it to providers
+      const _source = readIntoSourceFile(host, modulePath);
+      const _declarationChanges = addSymbolToNgModuleMetadata(_source, modulePath, "providers", options.name, symbolName, false);
+      const _declarationRecorder = host.beginUpdate(modulePath);
+      for (const _change of _declarationChanges) {
+        if (_change instanceof change_1.InsertChange) {
+          _declarationRecorder.insertLeft(_change.pos, _change.toAdd);
+        }
+      }
+      host.commitUpdate(_declarationRecorder);
+    }
 
     if (options.export) {
       // Need to refresh the AST because we overwrote the file in the host.

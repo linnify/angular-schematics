@@ -19,8 +19,12 @@ function directive(options) {
     return (host, _context) => __awaiter(this, void 0, void 0, function* () {
         yield shared_utils_1.setOptions(host, options);
         options.type = 'directive';
+        const directiveOptions = Object.assign({}, options);
+        delete directiveOptions.skipIndexImport;
+        delete directiveOptions.indexExport;
+        delete directiveOptions.type;
         return schematics_1.chain([
-            shared_utils_1.generateComponentExternal(options, 'directive'),
+            shared_utils_1.generateComponentExternal(directiveOptions, 'directive'),
             imports_utils_1.addDeclarationToIndexFile(options)
         ]);
     });

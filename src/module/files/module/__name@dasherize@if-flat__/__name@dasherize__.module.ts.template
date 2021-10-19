@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';<% if (sharedModule) { %>
-import { SharedModule } from '@app/shared';<% } %><% if (commonModule) { %>
+import { SharedModule } from '@app/shared/shared.module';<% } %><% if (commonModule) { %>
 import { CommonModule } from '@angular/common';<% } %><% if (lazyRouteWithoutRouteModule) { %>
 import { Routes, RouterModule } from '@angular/router';<% } %>
 <% if (routing || lazyRouteWithRouteModule) { %>
@@ -20,7 +20,8 @@ import * as fromRepositories from './repositories';<% } %>
   declarations: [<% if (components) { %>
     ...fromComponents.components<% } %><% if (containers) { %>,
     ...fromContainers.containers<% } %><% if (directives) { %>,
-    ...fromDirectives.directives<% } %>
+    ...fromDirectives.directives<% } %><% if (pipes) { %>,
+    ...fromPipes.pipes<% } %>
   ],
   imports: [
      <% if (sharedModule) { %>SharedModule<% } %><% if (commonModule) { %><% if (sharedModule) { %>,<% } %> CommonModule<% } %><% if (routing || lazyRouteWithRouteModule) { %><% if (commonModule || sharedModule) { %>,<% } %> <%= classify(name) %>RoutingModule<% } %><% if (lazyRouteWithoutRouteModule) { %>, RouterModule.forChild(routes)<% } %>

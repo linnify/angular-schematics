@@ -20,7 +20,7 @@ function buildSelector(options, projectPrefix) {
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
-export function component(options: Schema): Rule {
+export function component(options: any): Rule {
   return async (host: Tree) => {
     const project = await setOptions(host, options);
     options.selector =
@@ -29,8 +29,12 @@ export function component(options: Schema): Rule {
     validation_1.validateHtmlSelector(options.selector);
     options.type = options.type != null ? options.type : 'Component';
 
+    const componentOptions = Object.assign({}, options);
+    delete componentOptions.skipIndexImport;
+    delete componentOptions.indexExport;
+
     return chain([
-      generateComponentExternal(options, 'component'),
+      generateComponentExternal(componentOptions, 'component'),
       addDeclarationToIndexFile(options)
     ]);
   };

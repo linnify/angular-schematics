@@ -11,8 +11,13 @@ export function directive(options: Schema): Rule {
 
     options.type = 'directive';
 
+    const directiveOptions = Object.assign({}, options);
+    delete directiveOptions.skipIndexImport;
+    delete directiveOptions.indexExport;
+    delete directiveOptions.type;
+
     return chain([
-      generateComponentExternal(options, 'directive'),
+      generateComponentExternal(directiveOptions, 'directive'),
       addDeclarationToIndexFile(options)
     ]);
   };

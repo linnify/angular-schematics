@@ -12,8 +12,13 @@ export function pipe(options: Schema): Rule {
 
     options.type = 'pipe';
 
+    const pipeOptions = Object.assign({}, options);
+    delete pipeOptions.skipIndexImport;
+    delete pipeOptions.indexExport;
+    delete pipeOptions.type;
+
     return chain([
-      generateComponentExternal(options, 'pipe'),
+      generateComponentExternal(pipeOptions, 'pipe'),
       addDeclarationToIndexFile(options)
     ]);
   };

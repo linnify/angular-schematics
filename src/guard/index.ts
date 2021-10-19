@@ -34,8 +34,6 @@ export function guard(options: Schema): Rule {
 
     options.type = 'guard';
 
-    console.log(implementations)
-
     return chain([
       generateFromFiles(options, {
         implementations,

@@ -19,8 +19,12 @@ function pipe(options) {
     return (host, _context) => __awaiter(this, void 0, void 0, function* () {
         yield shared_utils_1.setOptions(host, options);
         options.type = 'pipe';
+        const pipeOptions = Object.assign({}, options);
+        delete pipeOptions.skipIndexImport;
+        delete pipeOptions.indexExport;
+        delete pipeOptions.type;
         return schematics_1.chain([
-            shared_utils_1.generateComponentExternal(options, 'pipe'),
+            shared_utils_1.generateComponentExternal(pipeOptions, 'pipe'),
             imports_utils_1.addDeclarationToIndexFile(options)
         ]);
     });
