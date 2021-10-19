@@ -1,16 +1,24 @@
 {
-  "name": "linnify-schematics",
+  "name": "@linnify/angular-schematics",
   "version": "1.0.0",
-  "description": "A blank schematics",
+  "description": "A new schematics that follows the Linnify styleguide for creating Angular projects",
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
+    "publish-package": "npm run build && npm publish --access public",
     "test": "npm run build && mocha src/**/*.test.ts --require ts-node/register"
   },
   "keywords": [
     "schematics"
   ],
-  "author": "",
+  "author": {
+    "name": "Mateiu Bianca",
+    "email": "bianca.mateiu@linnify.com"
+  },
+  "repository": {
+    "url": "git://github.com/linnify/angular-schematics.git"
+  },
+  "private": false,
   "license": "MIT",
   "schematics": "./src/collection.json",
   "dependencies": {
