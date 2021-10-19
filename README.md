@@ -1,28 +1,20 @@
-# Getting Started With Schematics
+# Linnify Angular Schematics
 
-This repository is a basic Schematic implementation that serves as a starting point to create and publish Schematics to NPM.
+This package will provide custom Angular Schematics for your project, based on the Linnify Styleguide.
 
-### Testing
-
-To test locally, install `@angular-devkit/schematics-cli` globally and use the `schematics` command line tool. That tool acts the same as the `generate` command of the Angular CLI, but also has a debug mode.
-
-Check the documentation with
+### Installing
 
 ```bash
-schematics --help
+  npm i @linnify/angular-schematics --save-dev
 ```
 
-### Unit Testing
+### Quick Start
 
-`npm run test` will run the unit tests, using Jasmine as a runner and test framework.
-
-### Publishing
-
-To publish, simply do:
+After you install the package, you need to add the following entry in the `angular.json` file. This is how the project will know to use the Linnify Schematics Collection instead of the default Angular one.
 
 ```bash
-npm run build
-npm publish
+  "cli": {
+    "defaultCollection": "@linnify/angular-schematics"
+  }
 ```
 
-That's it!
