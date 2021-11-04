@@ -1,6 +1,6 @@
 {
   "name": "@linnify/angular-schematics",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A new schematics that follows the Linnify styleguide for creating Angular projects",
   "scripts": {
     "build": "tsc -p tsconfig.json",
@@ -22,12 +22,12 @@
   "license": "MIT",
   "schematics": "./src/collection.json",
   "dependencies": {
-    "@angular-devkit/core": "^12.2.9",
-    "@angular-devkit/schematics": "^12.2.9",
+    "@angular-devkit/core": "13.0.1",
+    "@angular-devkit/schematics": "13.0.1",
     "typescript": "~4.3.2"
   },
   "devDependencies": {
-    "@schematics/angular": "^12.2.9",
+    "@schematics/angular": "13.0.1",
     "@types/jasmine": "~3.8.0",
     "@types/node": "^12.11.1",
     "jasmine-core": "^3.10.0",
