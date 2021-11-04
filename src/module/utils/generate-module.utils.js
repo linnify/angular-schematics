@@ -154,8 +154,7 @@ function linnifyModule(options) {
             !isLazyLoadedModuleGen ? addDeclarationToNgModule(options) : schematics_1.noop(),
             addRouteDeclarationToNgModule(options, routingModulePath),
             schematics_1.mergeWith(templateSource),
-            isLazyLoadedModuleGen ? schematics_1.schematic('component', componentOptions) : schematics_1.noop(),
-            options.lintFix ? lint_fix_1.applyLintFix(options.path) : schematics_1.noop(),
+            isLazyLoadedModuleGen ? schematics_1.schematic('component', componentOptions) : schematics_1.noop()
         ]);
     });
 }

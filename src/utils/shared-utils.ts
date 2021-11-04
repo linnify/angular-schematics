@@ -40,8 +40,7 @@ export function generateFromFiles(options, extraTemplateValues = {}) {
       schematics_1.move(options.path + (options.flat ? '' : '/' + core_1.strings.dasherize(options.name))),
     ]);
     return schematics_1.chain([
-      schematics_1.mergeWith(templateSource),
-      options.lintFix ? lint_fix_1.applyLintFix(options.path) : schematics_1.noop(),
+      schematics_1.mergeWith(templateSource)
     ]);
   };
 }

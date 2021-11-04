@@ -68,12 +68,6 @@
       "description": "The declaring NgModule.",
       "alias": "m"
     },
-    "lintFix": {
-      "type": "boolean",
-      "description": "Apply lint fixes after generating the module.",
-      "x-user-analytics": 15,
-      "x-deprecated": "Use \"ng lint --fix\" directly instead."
-    },
     "components": {
       "aliases": [
         "comp"

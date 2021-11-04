@@ -136,12 +136,6 @@
       "default": true,
       "description": "The index file exports this component."
     },
-    "lintFix": {
-      "type": "boolean",
-      "description": "Apply lint fixes after generating the component.",
-      "x-user-analytics": 15,
-      "x-deprecated": "Use \"ng lint --fix\" directly instead."
-    },
     "skipIndexImport": {
       "type": "boolean",
       "description": "Do not import component in index file",

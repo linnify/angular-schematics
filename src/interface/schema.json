@@ -36,12 +36,6 @@
       "type": "string",
       "description": "Adds a developer-defined type to the filename, in the format \"name.type.ts\".",
       "default": "interface"
-    },
-    "lintFix": {
-      "type": "boolean",
-      "description": "Apply lint fixes after generating the interface.",
-      "x-user-analytics": 15,
-      "x-deprecated": "Use \"ng lint --fix\" directly instead."
     }
   },
   "required": ["name"]

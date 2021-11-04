@@ -38,12 +38,6 @@
       "default": true,
       "x-user-analytics": 12
     },
-    "lintFix": {
-      "type": "boolean",
-      "description": "Apply lint fixes after generating the service.",
-      "x-user-analytics": 15,
-      "x-deprecated": "Use \"ng lint --fix\" directly instead."
-    },
     "skipIndexImport": {
       "type": "boolean",
       "description": "Do not import service in index file",
