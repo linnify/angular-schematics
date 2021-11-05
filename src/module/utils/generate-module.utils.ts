@@ -37,7 +37,6 @@ const ast_utils_1 = require("@schematics/angular/utility/ast-utils");
 const change_1 = require("@schematics/angular/utility/change");
 const find_module_1 = require("@schematics/angular/utility/find-module");
 const parse_name_1 = require("@schematics/angular/utility/parse-name");
-const lint_fix_1 = require("@schematics/angular/utility/lint-fix");
 const schema_1 = require("@schematics/angular/module/schema");
 function buildRelativeModulePath(options, modulePath) {
   const importModulePath = core_1.normalize(`/${options.path}/` +

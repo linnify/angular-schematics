@@ -5,7 +5,6 @@ const schematics_1 = require("@angular-devkit/schematics");
 const parse_name_1 = require("@schematics/angular/utility/parse-name");
 const workspace_1 = require("@schematics/angular/utility/workspace");
 const core_1 = require("@angular-devkit/core");
-const lint_fix_1 = require("@schematics/angular/utility/lint-fix");
 
 
 export async function setOptions(host: Tree, options: any): Promise<any>{
