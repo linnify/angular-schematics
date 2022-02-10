@@ -64,6 +64,12 @@
       "description": "A new repository schematic.",
       "factory": "./repository/index#repository",
       "schema": "./repository/schema.json"
+    },
+    "form": {
+      "aliases": ["f"],
+      "description": "A new form schematic.",
+      "factory": "./form/index#form",
+      "schema": "./form/schema.json"
     }
   }
 }

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addPathToTsconfig = exports.addDeclarationToModuleFile = exports.addClassExportToIndexFile = exports.addDeclarationToIndexFile = exports.readIntoSourceFile = void 0;
+exports.addPathToTsconfig = exports.addDeclarationToModuleFile = exports.addClassExportToIndexFile = exports.addDeclarationToIndexFile = exports.findModuleFromOptions = exports.readIntoSourceFile = void 0;
 // @ts-ignore
 const ts = require("@schematics/angular/third_party/github.com/Microsoft/TypeScript/lib/typescript");
 const change_1 = require("@schematics/angular/utility/change");
@@ -128,9 +128,12 @@ function findModuleFromOptions(host, options) {
             `Looked in the following directories:\n    ${candidatesDirs.join('\n    ')}`);
     }
 }
+exports.findModuleFromOptions = findModuleFromOptions;
 function addDeclarationToIndexFile(options) {
     return (host) => {
-        options.module = findModuleFromOptions(host, options);
+        if (!module) {
+            options.module = findModuleFromOptions(host, options);
+        }
         if (options.skipIndexImport || !options.module) {
             return host;
         }

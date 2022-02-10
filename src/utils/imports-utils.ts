@@ -108,7 +108,7 @@ export function readIntoSourceFile(host, modulePath) {
   return ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
 }
 
-function findModuleFromOptions(host, options) {
+export function findModuleFromOptions(host, options) {
   // eslint-disable-next-line no-prototype-builtins
   const moduleExt = options.moduleExt || exports.MODULE_EXT;
   const routingModuleExt = options.routingModuleExt || exports.ROUTING_MODULE_EXT;
@@ -146,7 +146,9 @@ function findModuleFromOptions(host, options) {
 
 export function addDeclarationToIndexFile(options: any): Rule {
   return (host) => {
-    options.module = findModuleFromOptions(host, options);
+    if(!module){
+      options.module = findModuleFromOptions(host, options);
+    }
     if (options.skipIndexImport || !options.module) {
       return host;
     }
