@@ -1,3 +1,4 @@
+<% if(lazyRoute) { %>import { <%= classify(component) %>Component } from './<%= dasherize(component) %>/<%= dasherize(component) %>.component';<% } %>
+export const <%= name %> = [<% if(lazyRoute) { %><%= classify(component) %>Component<% } %>];
 
-export const <%= name %> = [];
-
+<% if(lazyRoute) { %>export * from './<%= dasherize(component) %>/<%= dasherize(component) %>.component';<% } %>

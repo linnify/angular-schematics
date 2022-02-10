@@ -53,6 +53,12 @@
       "default": true,
       "description": "The index file exports this service.",
       "x-user-analytics": 19
+    },
+    "repo": {
+      "type": "boolean",
+      "default": true,
+      "description": "Create a repository and inject it in the service",
+      "x-user-analytics": 19
     }
   },
   "required": ["name"]

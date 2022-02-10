@@ -10,12 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.guard = void 0;
-const schematics_2 = require("@angular-devkit/schematics");
-const shared_utils_1 = require("../utils/shared-utils");
-const imports_utils_1 = require("../utils/imports-utils");
-Object.defineProperty(exports, "__esModule", { value: true });
 const schematics_1 = require("@angular-devkit/schematics");
 const schema_1 = require("@schematics/angular/guard/schema");
+const shared_utils_1 = require("../utils/shared-utils");
+const imports_utils_1 = require("../utils/imports-utils");
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
 function guard(options) {
@@ -41,7 +39,7 @@ function guard(options) {
         const implementationImports = routerNamedImports.join(', ');
         yield shared_utils_1.setOptions(host, options);
         options.type = 'guard';
-        return schematics_2.chain([
+        return schematics_1.chain([
             shared_utils_1.generateFromFiles(options, {
                 implementations,
                 implementationImports,

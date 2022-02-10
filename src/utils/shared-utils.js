@@ -9,13 +9,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createDirectoryTemplateSource = exports.generateComponentExternal = exports.generateFromFiles = exports.setOptions = void 0;
-const schematics_2 = require("@angular-devkit/schematics");
-const core_2 = require("@angular-devkit/core");
+exports.parseModuleName = exports.createDirectoryTemplateSource = exports.generateComponentExternal = exports.generateFromFiles = exports.setOptions = void 0;
 const schematics_1 = require("@angular-devkit/schematics");
+const core_1 = require("@angular-devkit/core");
 const parse_name_1 = require("@schematics/angular/utility/parse-name");
 const workspace_1 = require("@schematics/angular/utility/workspace");
-const core_1 = require("@angular-devkit/core");
 function setOptions(host, options) {
     return __awaiter(this, void 0, void 0, function* () {
         const workspace = yield workspace_1.getWorkspace(host);
@@ -50,15 +48,26 @@ function generateFromFiles(options, extraTemplateValues = {}) {
 }
 exports.generateFromFiles = generateFromFiles;
 function generateComponentExternal(_options, schematic) {
-    return schematics_2.externalSchematic('@schematics/angular', schematic, _options);
+    return schematics_1.externalSchematic('@schematics/angular', schematic, _options);
 }
 exports.generateComponentExternal = generateComponentExternal;
 function createDirectoryTemplateSource(modulePath, directory) {
-    return schematics_2.apply(schematics_2.url('../module/files/directories'), [
-        schematics_2.applyTemplates({
-            name: directory
+    return schematics_1.apply(schematics_1.url('../module/files/directories'), [
+        schematics_1.applyTemplates({
+            name: directory,
+            lazyRoute: false
         }),
-        schematics_2.move(core_2.normalize(modulePath))
+        schematics_1.move(core_1.normalize(modulePath))
     ]);
 }
 exports.createDirectoryTemplateSource = createDirectoryTemplateSource;
+function parseModuleName(path, directory) {
+    const paths = path.split('/');
+    const directoryIndex = paths.findIndex(_path => _path === directory);
+    // we will consider that the name of the module is found in the position before the directory
+    if (directoryIndex <= 0) {
+        return null;
+    }
+    return paths[directoryIndex - 1];
+}
+exports.parseModuleName = parseModuleName;
