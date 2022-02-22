@@ -31,7 +31,6 @@ function buildSelector(options, projectPrefix) {
 function form(options) {
     return (host) => __awaiter(this, void 0, void 0, function* () {
         const project = yield shared_utils_1.setOptions(host, options);
-        console.log(project.prefix);
         const configPath = core_1.normalize(core_1.join(options.path, options.config));
         const jsonFormConfig = host.read(configPath);
         if (!jsonFormConfig) {
@@ -48,7 +47,6 @@ function form(options) {
         validation_1.validateHtmlSelector(options.selector);
         options.type = options.type != null ? options.type : 'Component';
         const skipStyleFile = options.inlineStyle || options.style === schema_1.Style.None;
-        console.log(options);
         const templateSource = schematics_1.apply(schematics_1.url('./files'), [
             options.skipTests ? schematics_1.filter((path) => !path.endsWith('.spec.ts.template')) : schematics_1.noop(),
             skipStyleFile ? schematics_1.filter((path) => !path.endsWith('.__style__.template')) : schematics_1.noop(),

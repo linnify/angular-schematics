@@ -17,7 +17,7 @@ import {
   getDecoratorMetadata,
   getMetadataField
 } from '@schematics/angular/utility/ast-utils';
-import {findModule} from '@schematics/angular//utility/find-module';
+import {findModule} from '@schematics/angular/utility/find-module';
 
 function addSymbolToIndexMetadata(source, indexPath, symbolName, importPath = null): InsertChange[] {
   const nodes = getSourceNodes(source)
@@ -146,7 +146,7 @@ export function findModuleFromOptions(host, options) {
 
 export function addDeclarationToIndexFile(options: any): Rule {
   return (host) => {
-    if(!module){
+    if(!options.module){
       options.module = findModuleFromOptions(host, options);
     }
     if (options.skipIndexImport || !options.module) {

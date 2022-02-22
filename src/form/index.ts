@@ -32,7 +32,6 @@ function buildSelector(options, projectPrefix) {
 export function form(options: any): Rule {
   return async (host: Tree) => {
     const project = await setOptions(host, options);
-    console.log(project.prefix)
 
     const configPath = normalize(join(options.path, options.config));
 
@@ -57,7 +56,6 @@ export function form(options: any): Rule {
     options.type = options.type != null ? options.type : 'Component';
 
     const skipStyleFile = options.inlineStyle || options.style === Style.None;
-    console.log(options);
 
     const templateSource = apply(url('./files'), [
       options.skipTests ? filter((path) => !path.endsWith('.spec.ts.template')) : noop(),

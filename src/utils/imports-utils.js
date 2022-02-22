@@ -7,7 +7,7 @@ const change_1 = require("@schematics/angular/utility/change");
 const core_1 = require("@angular-devkit/core");
 const schematics_1 = require("@angular-devkit/schematics");
 const ast_utils_1 = require("@schematics/angular/utility/ast-utils");
-const find_module_1 = require("@schematics/angular//utility/find-module");
+const find_module_1 = require("@schematics/angular/utility/find-module");
 function addSymbolToIndexMetadata(source, indexPath, symbolName, importPath = null) {
     const nodes = ast_utils_1.getSourceNodes(source)
         .filter((node) => node.kind === ts.SyntaxKind.ArrayLiteralExpression);
@@ -131,7 +131,7 @@ function findModuleFromOptions(host, options) {
 exports.findModuleFromOptions = findModuleFromOptions;
 function addDeclarationToIndexFile(options) {
     return (host) => {
-        if (!module) {
+        if (!options.module) {
             options.module = findModuleFromOptions(host, options);
         }
         if (options.skipIndexImport || !options.module) {
