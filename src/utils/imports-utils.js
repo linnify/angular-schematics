@@ -134,25 +134,27 @@ function addDeclarationToIndexFile(options) {
         if (!options.module) {
             options.module = findModuleFromOptions(host, options);
         }
-        if (options.skipIndexImport || !options.module) {
+        if (!options.module) {
             return host;
         }
         const indexPath = core_1.join(core_1.normalize(options.path), 'index.ts');
-        const source = readIntoSourceFile(host, indexPath);
         const componentRelativePath = (options.flat ? '' : core_1.strings.dasherize(options.name) + '/') +
             core_1.strings.dasherize(options.name) +
             (options.type ? '.' : '') +
             core_1.strings.dasherize(options.type);
         const relativePath = './' + componentRelativePath;
-        const classifiedName = core_1.strings.classify(options.name) + core_1.strings.classify(options.type);
-        const declarationChanges = addSymbolToIndexMetadata(source, indexPath, classifiedName, relativePath);
-        const declarationRecorder = host.beginUpdate(indexPath);
-        for (const change of declarationChanges) {
-            if (change instanceof change_1.InsertChange) {
-                declarationRecorder.insertLeft(change.pos, change.toAdd);
+        if (!options.skipIndexImport) {
+            const source = readIntoSourceFile(host, indexPath);
+            const classifiedName = core_1.strings.classify(options.name) + core_1.strings.classify(options.type);
+            const declarationChanges = addSymbolToIndexMetadata(source, indexPath, classifiedName, relativePath);
+            const declarationRecorder = host.beginUpdate(indexPath);
+            for (const change of declarationChanges) {
+                if (change instanceof change_1.InsertChange) {
+                    declarationRecorder.insertLeft(change.pos, change.toAdd);
+                }
             }
+            host.commitUpdate(declarationRecorder);
         }
-        host.commitUpdate(declarationRecorder);
         if (options.indexExport) {
             // Need to refresh the AST because we overwrote the file in the host.
             const source = readIntoSourceFile(host, indexPath);

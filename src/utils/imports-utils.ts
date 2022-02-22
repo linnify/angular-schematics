@@ -146,32 +146,33 @@ export function findModuleFromOptions(host, options) {
 
 export function addDeclarationToIndexFile(options: any): Rule {
   return (host) => {
-    if(!options.module){
+    if (!options.module) {
       options.module = findModuleFromOptions(host, options);
     }
-    if (options.skipIndexImport || !options.module) {
+    if (!options.module) {
       return host;
     }
 
     const indexPath = join(normalize(options.path), 'index.ts');
-
-    const source = readIntoSourceFile(host, indexPath);
-
     const componentRelativePath = (options.flat ? '' : strings.dasherize(options.name) + '/') +
       strings.dasherize(options.name) +
       (options.type ? '.' : '') +
       strings.dasherize(options.type);
     const relativePath = './' + componentRelativePath;
-    const classifiedName = strings.classify(options.name) + strings.classify(options.type);
 
-    const declarationChanges = addSymbolToIndexMetadata(source, indexPath, classifiedName, relativePath);
-    const declarationRecorder = host.beginUpdate(indexPath);
-    for (const change of declarationChanges) {
-      if (change instanceof InsertChange) {
-        declarationRecorder.insertLeft(change.pos, change.toAdd);
+    if (!options.skipIndexImport) {
+      const source = readIntoSourceFile(host, indexPath);
+      const classifiedName = strings.classify(options.name) + strings.classify(options.type);
+
+      const declarationChanges = addSymbolToIndexMetadata(source, indexPath, classifiedName, relativePath);
+      const declarationRecorder = host.beginUpdate(indexPath);
+      for (const change of declarationChanges) {
+        if (change instanceof InsertChange) {
+          declarationRecorder.insertLeft(change.pos, change.toAdd);
+        }
       }
+      host.commitUpdate(declarationRecorder);
     }
-    host.commitUpdate(declarationRecorder);
     if (options.indexExport) {
       // Need to refresh the AST because we overwrote the file in the host.
       const source = readIntoSourceFile(host, indexPath);
@@ -396,7 +397,7 @@ function getJsonValueNode(nodes, key): ts.Node {
 
   const value = children[2].getChildren().filter((node) => node.kind === ts.SyntaxKind.SyntaxList);
 
-  if(!value || value.length === 0){
+  if (!value || value.length === 0) {
     return null;
   }
 
