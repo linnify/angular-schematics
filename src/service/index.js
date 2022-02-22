@@ -22,6 +22,7 @@ function service(options) {
         options.flat = true;
         const module = shared_utils_1.parseModuleName(options.path, 'services');
         const repoPath = core_1.normalize(options.path.replace('services', 'repositories'));
+        const modulePath = core_1.normalize(options.path.replace('services', ''));
         const repoOptions = {
             module,
             flat: options.flat,
@@ -30,11 +31,24 @@ function service(options) {
             skipImport: true,
             path: repoPath
         };
-        return schematics_1.chain([
-            shared_utils_1.generateFromFiles(options, Object.assign(Object.assign({}, core_1.strings), { 'if-flat': (s) => (flat ? '' : s), repo: !!options.repo, appPrefix: project.prefix, module })),
-            imports_utils_1.addDeclarationToIndexFile(options),
-            options.repo ? schematics_1.schematic('repo', repoOptions) : schematics_1.noop()
-        ]);
+        let hasRepoDirectory;
+        let repoDirectoryOptions;
+        const indexPath = core_1.join(core_1.normalize(repoPath), 'index.ts');
+        const text = host.read(indexPath);
+        if (text === null) {
+            hasRepoDirectory = false;
+            repoDirectoryOptions = {
+                name: 'repositories',
+                module,
+                project: options.project,
+                path: modulePath
+            };
+        }
+        return schematics_1.chain([schematics_1.chain([
+                shared_utils_1.generateFromFiles(options, Object.assign(Object.assign({}, core_1.strings), { 'if-flat': (s) => (flat ? '' : s), repo: !!options.repo, appPrefix: project.prefix, module })),
+                imports_utils_1.addDeclarationToIndexFile(options),
+                !hasRepoDirectory ? schematics_1.schematic('l-dir', repoDirectoryOptions) : schematics_1.noop()
+            ]), options.repo ? schematics_1.schematic('repo', repoOptions) : schematics_1.noop()]);
     });
 }
 exports.service = service;

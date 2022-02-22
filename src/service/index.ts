@@ -2,7 +2,7 @@ import {chain, noop, Rule, schematic, Tree} from '@angular-devkit/schematics';
 import {Schema} from './schema';
 import {addDeclarationToIndexFile} from '../utils/imports-utils';
 import {generateFromFiles, parseModuleName, setOptions} from '../utils/shared-utils';
-import {strings, normalize} from '@angular-devkit/core';
+import {strings, normalize, join} from '@angular-devkit/core';
 
 export function service(options: Schema): Rule {
   return async (host: Tree) => {
@@ -15,6 +15,7 @@ export function service(options: Schema): Rule {
 
     const module = parseModuleName(options.path, 'services');
     const repoPath = normalize(options.path.replace('services', 'repositories'));
+    const modulePath = normalize(options.path.replace('services', ''));
 
     const repoOptions = {
       module,
@@ -25,7 +26,21 @@ export function service(options: Schema): Rule {
       path: repoPath
     };
 
-    return chain([
+    let hasRepoDirectory;
+    let repoDirectoryOptions;
+    const indexPath = join(normalize(repoPath), 'index.ts');
+    const text = host.read(indexPath);
+    if (text === null) {
+      hasRepoDirectory = false;
+      repoDirectoryOptions = {
+        name: 'repositories',
+        module,
+        project: options.project,
+        path: modulePath
+      }
+    }
+
+    return chain([chain([
       generateFromFiles(options, {
         ...strings,
         'if-flat': (s) => (flat ? '' : s),
@@ -34,7 +49,7 @@ export function service(options: Schema): Rule {
         module
       }),
       addDeclarationToIndexFile(options),
-      options.repo ? schematic('repo', repoOptions) : noop()
-    ]);
+      !hasRepoDirectory ? schematic('l-dir', repoDirectoryOptions) : noop()
+    ]), options.repo ? schematic('repo', repoOptions) : noop()]);
   };
 }
