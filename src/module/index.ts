@@ -1,49 +1,67 @@
-import {apply, applyTemplates, chain, mergeWith, move, Rule, Source, Tree, url} from '@angular-devkit/schematics';
+import {
+  apply,
+  applyTemplates,
+  chain,
+  mergeWith,
+  move,
+  Rule,
+  Source,
+  Tree,
+  url
+} from '@angular-devkit/schematics';
 import {Schema} from './schema';
 
-import {join, normalize} from '@angular-devkit/core';
+import {join, normalize, strings} from '@angular-devkit/core';
+import {findModuleFromOptions} from '@schematics/angular/utility/find-module'
 
+import {createDirectoryTemplateSource, setOptions} from '../utils/shared-utils';
 import {linnifyModule} from './utils/generate-module.utils';
-
-import {parseName} from '@schematics/angular/utility/parse-name';
-import {createDirectoryTemplateSource} from '../utils/shared-utils';
-const workspace_1 = require("@schematics/angular/utility/workspace");
-const find_module_1 = require("@schematics/angular/utility/find-module");
+import {addPathToTsconfig} from '../utils/imports-utils';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
 export function module(options: Schema): Rule {
   return async (tree: Tree) => {
-    if (options.path === undefined) {
-      options.path = await workspace_1.createDefaultPath(tree, options.project);
-    }
-    if (options.module) {
-      options.module = find_module_1.findModuleFromOptions(tree, options);
-    }
+    const project =  await setOptions(tree, options);
 
-    const parsedPath = parseName(options.path as string, options.name);
-    options.name = parsedPath.name;
-    options.path = parsedPath.path;
+    if (options.module) {
+      options.module = findModuleFromOptions(tree, options);
+    }
 
     const modulePath = join(normalize(options.path), options.name);
 
-    const templateSources = createTemplateSources(modulePath, options);
+    const isLazyLoadedModuleGen = !!(options.route && options.module);
+
+    const templateSources = createTemplateSources(modulePath, options, isLazyLoadedModuleGen);
+
+    if(isLazyLoadedModuleGen){
+      templateSources.push(apply(url('./files/directories'), [
+        applyTemplates({
+          ...strings,
+          name: 'containers',
+          component: options.name,
+          lazyRoute: true
+        }),
+        move(normalize(modulePath as string))
+      ]))
+    }
 
     return chain([
-      linnifyModule(options),
+      linnifyModule(options, project),
+      addPathToTsconfig(options, project),
       ...templateSources.map(templateSource => mergeWith(templateSource))
     ]);
   };
 }
 
-function createTemplateSources(modulePath: string, options: Schema): Source[] {
+function createTemplateSources(modulePath: string, options: Schema, lazyLoadedModule): Source[] {
   const templateSources: Source[] = [];
 
   if (options.components) {
     templateSources.push(createDirectoryTemplateSource(modulePath, 'components'));
   }
 
-  if (options.containers) {
+  if (options.containers && !lazyLoadedModule) {
     templateSources.push(createDirectoryTemplateSource(modulePath, 'containers'));
   }
 
@@ -67,7 +85,7 @@ function createTemplateSources(modulePath: string, options: Schema): Source[] {
     templateSources.push(createDirectoryTemplateSource(modulePath, 'repositories'));
   }
 
-  if(options.types){
+  if (options.types) {
     templateSources.push(apply(url('./files/_types'), [
       applyTemplates({}),
       move(normalize(modulePath as string))

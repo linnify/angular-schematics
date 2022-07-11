@@ -4,4 +4,5 @@ export interface Schema extends ServiceSchema {
   skipIndexImport: boolean;
   type: string;
   indexExport: boolean;
+  repo: boolean;
 }

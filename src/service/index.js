@@ -13,18 +13,42 @@ exports.service = void 0;
 const schematics_1 = require("@angular-devkit/schematics");
 const imports_utils_1 = require("../utils/imports-utils");
 const shared_utils_1 = require("../utils/shared-utils");
+const core_1 = require("@angular-devkit/core");
 function service(options) {
     return (host) => __awaiter(this, void 0, void 0, function* () {
-        yield shared_utils_1.setOptions(host, options);
+        const project = yield shared_utils_1.setOptions(host, options);
         options.type = 'service';
         const flat = options.flat;
         options.flat = true;
-        return schematics_1.chain([
-            shared_utils_1.generateFromFiles(options, {
-                'if-flat': (s) => (flat ? '' : s),
-            }),
-            imports_utils_1.addDeclarationToIndexFile(options)
-        ]);
+        const module = shared_utils_1.parseModuleName(options.path, 'services');
+        const repoPath = core_1.normalize(options.path.replace('services', 'repositories'));
+        const modulePath = core_1.normalize(options.path.replace('services', ''));
+        const repoOptions = {
+            module,
+            flat: options.flat,
+            name: options.name,
+            project: options.project,
+            skipImport: true,
+            path: repoPath
+        };
+        let hasRepoDirectory;
+        let repoDirectoryOptions;
+        const indexPath = core_1.join(core_1.normalize(repoPath), 'index.ts');
+        const text = host.read(indexPath);
+        if (text === null) {
+            hasRepoDirectory = false;
+            repoDirectoryOptions = {
+                name: 'repositories',
+                module,
+                project: options.project,
+                path: modulePath
+            };
+        }
+        return schematics_1.chain([schematics_1.chain([
+                shared_utils_1.generateFromFiles(options, Object.assign(Object.assign({}, core_1.strings), { 'if-flat': (s) => (flat ? '' : s), repo: !!options.repo, appPrefix: project.prefix, module })),
+                imports_utils_1.addDeclarationToIndexFile(options),
+                !hasRepoDirectory ? schematics_1.schematic('l-dir', repoDirectoryOptions) : schematics_1.noop()
+            ]), options.repo ? schematics_1.schematic('repo', repoOptions) : schematics_1.noop()]);
     });
 }
 exports.service = service;

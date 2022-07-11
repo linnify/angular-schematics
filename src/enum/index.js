@@ -20,7 +20,7 @@ function enumSchematics(options) {
         yield shared_utils_1.setOptions(host, options);
         options.type = 'enum';
         return schematics_1.chain([
-            shared_utils_1.generateComponentExternal(options, 'interface'),
+            shared_utils_1.generateComponentExternal(options, 'enum'),
             imports_utils_1.addClassExportToIndexFile(options)
         ]);
     });

@@ -8,44 +8,38 @@
  * found in the LICENSE file at https://angular.io/license
  */
 // @ts-ignore
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
-}) : (function(o, m, k, k2) {
-  if (k2 === undefined) k2 = k;
-  o[k2] = m[k];
-}));
-// @ts-ignore
-var __setModuleDefault: any = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-  Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-  o["default"] = v;
-});
-// @ts-ignore
-var __importStar = (this && this.__importStar) || function (mod) {
-  if (mod && mod.__esModule) return mod;
-  var result = {};
-  if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k, undefined);
-  __setModuleDefault(result, mod);
-  return result;
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const core_1 = require("@angular-devkit/core");
-const schematics_1 = require("@angular-devkit/schematics");
-const ts = __importStar(require("@schematics/angular/third_party/github.com/Microsoft/TypeScript/lib/typescript"));
-const ast_utils_1 = require("@schematics/angular/utility/ast-utils");
-const change_1 = require("@schematics/angular/utility/change");
-const find_module_1 = require("@schematics/angular/utility/find-module");
-const parse_name_1 = require("@schematics/angular/utility/parse-name");
-const schema_1 = require("@schematics/angular/module/schema");
-function buildRelativeModulePath(options, modulePath) {
-  const importModulePath = core_1.normalize(`/${options.path}/` +
-    (options.flat ? '' : core_1.strings.dasherize(options.name) + '/') +
-    core_1.strings.dasherize(options.name) +
-    '.module');
-  return find_module_1.buildRelativePath(modulePath, importModulePath);
+import * as ts from '@schematics/angular/third_party/github.com/Microsoft/TypeScript/lib/typescript';
+import {normalize, strings} from "@angular-devkit/core"
+import {
+  SchematicsException,
+  apply,
+  applyTemplates,
+  chain,
+  filter,
+  mergeWith,
+  move,
+  noop,
+  url
+} from '@angular-devkit/schematics';
+import {addImportToModule, addRouteDeclarationToModule} from '@schematics/angular/utility/ast-utils';
+import {InsertChange} from '@schematics/angular/utility/change';
+import {
+  MODULE_EXT,
+  ROUTING_MODULE_EXT
+} from '@schematics/angular//utility/find-module';
+import {parseName} from '@schematics/angular/utility/parse-name'
+import {RoutingScope} from '@schematics/angular/module/schema'
+import {generateComponentExternal} from '../../utils/shared-utils';
+
+function buildAbsoluteModulePath(options, projectPrefix) {
+  const importModulePath = (options.flat ? '' : strings.dasherize(options.name) + '/') +
+    strings.dasherize(options.name) +
+    '.module';
+  return '@' + projectPrefix + '/' + importModulePath;
 }
-function addDeclarationToNgModule(options) {
+
+function addDeclarationToNgModule(options, projectPrefix) {
+
   return (host) => {
     if (!options.module) {
       return host;
@@ -53,15 +47,15 @@ function addDeclarationToNgModule(options) {
     const modulePath = options.module;
     const text = host.read(modulePath);
     if (text === null) {
-      throw new schematics_1.SchematicsException(`File ${modulePath} does not exist.`);
+      throw new SchematicsException(`File ${modulePath} does not exist.`);
     }
     const sourceText = text.toString();
     const source = ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
-    const relativePath = buildRelativeModulePath(options, modulePath);
-    const changes = ast_utils_1.addImportToModule(source, modulePath, core_1.strings.classify(`${options.name}Module`), relativePath);
+    const absolutePath = buildAbsoluteModulePath(options, projectPrefix);
+    const changes = addImportToModule(source, modulePath, strings.classify(`${options.name}Module`), absolutePath);
     const recorder = host.beginUpdate(modulePath);
     for (const change of changes) {
-      if (change instanceof change_1.InsertChange) {
+      if (change instanceof InsertChange) {
         recorder.insertLeft(change.pos, change.toAdd);
       }
     }
@@ -69,7 +63,8 @@ function addDeclarationToNgModule(options) {
     return host;
   };
 }
-function addRouteDeclarationToNgModule(options, routingModulePath) {
+
+function addRouteDeclarationToNgModule(options, routingModulePath, projectPrefix) {
   return (host) => {
     if (!options.route) {
       return host;
@@ -80,8 +75,7 @@ function addRouteDeclarationToNgModule(options, routingModulePath) {
     let path;
     if (routingModulePath) {
       path = routingModulePath;
-    }
-    else {
+    } else {
       path = options.module;
     }
     const text = host.read(path);
@@ -89,62 +83,73 @@ function addRouteDeclarationToNgModule(options, routingModulePath) {
       throw new Error(`Couldn't find the module nor its routing module.`);
     }
     const sourceText = text.toString();
-    const addDeclaration = ast_utils_1.addRouteDeclarationToModule(ts.createSourceFile(path, sourceText, ts.ScriptTarget.Latest, true), path, buildRoute(options, options.module));
+    const addDeclaration = addRouteDeclarationToModule(
+      ts.createSourceFile(path, sourceText, ts.ScriptTarget.Latest, true),
+      path,
+      buildRoute(options, projectPrefix)
+    ) as InsertChange;
     const recorder = host.beginUpdate(path);
     recorder.insertLeft(addDeclaration.pos, addDeclaration.toAdd);
     host.commitUpdate(recorder);
     return host;
   };
 }
+
 function getRoutingModulePath(host, modulePath) {
-  const routingModulePath = modulePath.endsWith(find_module_1.ROUTING_MODULE_EXT)
+  const routingModulePath = modulePath.endsWith(ROUTING_MODULE_EXT)
     ? modulePath
-    : modulePath.replace(find_module_1.MODULE_EXT, find_module_1.ROUTING_MODULE_EXT);
-  return host.exists(routingModulePath) ? core_1.normalize(routingModulePath) : undefined;
+    : modulePath.replace(MODULE_EXT, ROUTING_MODULE_EXT);
+  return host.exists(routingModulePath) ? normalize(routingModulePath) : undefined;
 }
-function buildRoute(options, modulePath) {
-  const relativeModulePath = buildRelativeModulePath(options, modulePath);
-  const moduleName = `${core_1.strings.classify(options.name)}Module`;
-  const loadChildren = `() => import('${relativeModulePath}').then(m => m.${moduleName})`;
+
+function buildRoute(options, projectPrefix) {
+  const absoluteModulePath = buildAbsoluteModulePath(options, projectPrefix);
+  const moduleName = `${strings.classify(options.name)}Module`;
+  const loadChildren = `() => import('${absoluteModulePath}').then(m => m.${moduleName})`;
   return `{ path: '${options.route}', loadChildren: ${loadChildren} }`;
 }
-export function linnifyModule(options) {
+
+export function linnifyModule(options, project) {
   return async (host) => {
     let routingModulePath;
+
     const isLazyLoadedModuleGen = !!(options.route && options.module);
     if (isLazyLoadedModuleGen) {
-      options.routingScope = schema_1.RoutingScope.Child;
+      options.routingScope = RoutingScope.Child;
       routingModulePath = getRoutingModulePath(host, options.module);
     }
-    const parsedPath = parse_name_1.parseName(options.path, options.name);
-    const templateSource = schematics_1.apply(schematics_1.url('./files/module'), [
+    const parsedPath = parseName(options.path, options.name);
+    const templateSource = apply(url('./files/module'), [
       options.routing || (isLazyLoadedModuleGen && routingModulePath)
-        ? schematics_1.noop()
-        : schematics_1.filter((path) => !path.endsWith('-routing.module.ts.template')),
-      schematics_1.applyTemplates({
-        ...core_1.strings,
+        ? noop()
+        : filter((path) => !path.endsWith('-routing.module.ts.template')),
+      applyTemplates({
+        ...strings,
         'if-flat': (s) => (options.flat ? '' : s),
         lazyRoute: isLazyLoadedModuleGen,
         lazyRouteWithoutRouteModule: isLazyLoadedModuleGen && !routingModulePath,
         lazyRouteWithRouteModule: isLazyLoadedModuleGen && !!routingModulePath,
         ...options,
       }),
-      schematics_1.move(parsedPath.path),
+      move(parsedPath.path),
     ]);
-    const moduleDasherized = core_1.strings.dasherize(options.name);
-    const modulePath = `${!options.flat ? moduleDasherized + '/' : ''}${moduleDasherized}.module.ts`;
+
+    const moduleDasherized = strings.dasherize(options.name);
+    const componentModulePath = `${!options.flat ? moduleDasherized + '/' : ''}${moduleDasherized}.module.ts`;
     const componentOptions = {
-      module: modulePath,
+      module: componentModulePath,
       flat: options.flat,
-      name: options.name,
+      name: options.name + '/containers/' + options.name,
       path: options.path,
       project: options.project,
+      skipImport: true
     };
-    return schematics_1.chain([
-      !isLazyLoadedModuleGen ? addDeclarationToNgModule(options) : schematics_1.noop(),
-      addRouteDeclarationToNgModule(options, routingModulePath),
-      schematics_1.mergeWith(templateSource),
-      isLazyLoadedModuleGen ? schematics_1.schematic('component', componentOptions) : schematics_1.noop()
+
+    return chain([
+      !isLazyLoadedModuleGen ? addDeclarationToNgModule(options, project.prefix) : noop(),
+      addRouteDeclarationToNgModule(options, routingModulePath, project.prefix),
+      mergeWith(templateSource),
+      isLazyLoadedModuleGen ? generateComponentExternal(componentOptions, 'component') : noop()
     ]);
   };
 }

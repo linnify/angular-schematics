@@ -1,48 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.addDeclarationToModuleFile = exports.addClassExportToIndexFile = exports.addDeclarationToIndexFile = void 0;
+exports.addPathToTsconfig = exports.addDeclarationToModuleFile = exports.addClassExportToIndexFile = exports.addDeclarationToIndexFile = exports.findModuleFromOptions = exports.readIntoSourceFile = void 0;
 // @ts-ignore
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function (o, m, k, k2) {
-    if (k2 === undefined)
-        k2 = k;
-    Object.defineProperty(o, k2, {
-        enumerable: true, get: function () {
-            return m[k];
-        }
-    });
-}) : (function (o, m, k, k2) {
-    if (k2 === undefined)
-        k2 = k;
-    o[k2] = m[k];
-}));
-// @ts-ignore
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function (o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function (o, v) {
-    o["default"] = v;
-});
-// @ts-ignore
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule)
-        return mod;
-    var result = {};
-    if (mod != null)
-        for (var k in mod)
-            if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k))
-                __createBinding(result, mod, k, undefined);
-    __setModuleDefault(result, mod);
-    return result;
-};
-const core_2 = require("@angular-devkit/core");
+const ts = require("@schematics/angular/third_party/github.com/Microsoft/TypeScript/lib/typescript");
+const change_1 = require("@schematics/angular/utility/change");
+const core_1 = require("@angular-devkit/core");
 const schematics_1 = require("@angular-devkit/schematics");
 const ast_utils_1 = require("@schematics/angular/utility/ast-utils");
-const ts_1 = __importStar(require("@schematics/angular/third_party/github.com/Microsoft/TypeScript/lib/typescript"));
-const core_1 = require("@angular-devkit/core");
-const change_1 = require("@schematics/angular/utility/change");
 const find_module_1 = require("@schematics/angular/utility/find-module");
 function addSymbolToIndexMetadata(source, indexPath, symbolName, importPath = null) {
     const nodes = ast_utils_1.getSourceNodes(source)
-        .filter((node) => node.kind === ts_1.SyntaxKind.ArrayLiteralExpression);
+        .filter((node) => node.kind === ts.SyntaxKind.ArrayLiteralExpression);
     // should be only one array in the index file
     if (!nodes || nodes.length !== 1) {
         return [];
@@ -79,10 +47,13 @@ function addSymbolToIndexMetadata(source, indexPath, symbolName, importPath = nu
     if (importPath !== null) {
         return [
             new change_1.InsertChange(indexPath, position, toInsert),
-            ast_utils_1.insertImport(source, indexPath, symbolName.replace(/\..*$/, ''), importPath),
+            ast_utils_1.insertImport(source, indexPath, symbolName.replace(/\..*$/, ''), importPath)
         ];
     }
     return [new change_1.InsertChange(indexPath, position, toInsert)];
+}
+function nodesByPosition(first, second) {
+    return first.getStart() - second.getStart();
 }
 function insertAfterLastOccurrence(nodes, toInsert, file, fallbackPos, syntaxKind) {
     let lastItem;
@@ -92,7 +63,7 @@ function insertAfterLastOccurrence(nodes, toInsert, file, fallbackPos, syntaxKin
         }
     }
     if (syntaxKind && lastItem) {
-        lastItem = ast_utils_1.findNodes(lastItem, syntaxKind).sort(ast_utils_1.nodesByPosition).pop();
+        lastItem = ast_utils_1.findNodes(lastItem, syntaxKind).sort(nodesByPosition).pop();
     }
     if (!lastItem && fallbackPos == undefined) {
         throw new Error(`tried to insert ${toInsert} as first occurence with no fallback position`);
@@ -105,11 +76,11 @@ function addExportToIndex(source, indexPath, symbolName, importPath = null) {
         return [];
     }
     const rootNode = source;
-    const allExports = ast_utils_1.findNodes(rootNode, ts_1.SyntaxKind.ExportDeclaration);
+    const allExports = ast_utils_1.findNodes(rootNode, ts.SyntaxKind.ExportDeclaration);
     const toExport = `export * from '${importPath}';\n`;
     const fallbackPos = rootNode.end;
     return [
-        insertAfterLastOccurrence(allExports, toExport, indexPath, fallbackPos, ts_1.SyntaxKind.StringLiteral)
+        insertAfterLastOccurrence(allExports, toExport, indexPath, fallbackPos, ts.SyntaxKind.StringLiteral)
     ];
 }
 function readIntoSourceFile(host, modulePath) {
@@ -118,8 +89,9 @@ function readIntoSourceFile(host, modulePath) {
         throw new schematics_1.SchematicsException(`File ${modulePath} does not exist.`);
     }
     const sourceText = text.toString('utf-8');
-    return ts_1.createSourceFile(modulePath, sourceText, ts_1.ScriptTarget.Latest, true);
+    return ts.createSourceFile(modulePath, sourceText, ts.ScriptTarget.Latest, true);
 }
+exports.readIntoSourceFile = readIntoSourceFile;
 function findModuleFromOptions(host, options) {
     // eslint-disable-next-line no-prototype-builtins
     const moduleExt = options.moduleExt || exports.MODULE_EXT;
@@ -156,28 +128,33 @@ function findModuleFromOptions(host, options) {
             `Looked in the following directories:\n    ${candidatesDirs.join('\n    ')}`);
     }
 }
+exports.findModuleFromOptions = findModuleFromOptions;
 function addDeclarationToIndexFile(options) {
     return (host) => {
-        options.module = findModuleFromOptions(host, options);
-        if (options.skipIndexImport || !options.module) {
+        if (!options.module) {
+            options.module = findModuleFromOptions(host, options);
+        }
+        if (!options.module) {
             return host;
         }
-        const indexPath = core_2.join(core_2.normalize(options.path), 'index.ts');
-        const source = readIntoSourceFile(host, indexPath);
+        const indexPath = core_1.join(core_1.normalize(options.path), 'index.ts');
         const componentRelativePath = (options.flat ? '' : core_1.strings.dasherize(options.name) + '/') +
             core_1.strings.dasherize(options.name) +
             (options.type ? '.' : '') +
             core_1.strings.dasherize(options.type);
         const relativePath = './' + componentRelativePath;
-        const classifiedName = core_1.strings.classify(options.name) + core_1.strings.classify(options.type);
-        const declarationChanges = addSymbolToIndexMetadata(source, indexPath, classifiedName, relativePath);
-        const declarationRecorder = host.beginUpdate(indexPath);
-        for (const change of declarationChanges) {
-            if (change instanceof change_1.InsertChange) {
-                declarationRecorder.insertLeft(change.pos, change.toAdd);
+        if (!options.skipIndexImport) {
+            const source = readIntoSourceFile(host, indexPath);
+            const classifiedName = core_1.strings.classify(options.name) + core_1.strings.classify(options.type);
+            const declarationChanges = addSymbolToIndexMetadata(source, indexPath, classifiedName, relativePath);
+            const declarationRecorder = host.beginUpdate(indexPath);
+            for (const change of declarationChanges) {
+                if (change instanceof change_1.InsertChange) {
+                    declarationRecorder.insertLeft(change.pos, change.toAdd);
+                }
             }
+            host.commitUpdate(declarationRecorder);
         }
-        host.commitUpdate(declarationRecorder);
         if (options.indexExport) {
             // Need to refresh the AST because we overwrote the file in the host.
             const source = readIntoSourceFile(host, indexPath);
@@ -200,7 +177,7 @@ function addClassExportToIndexFile(options) {
         if (options.skipIndexImport || !options.module) {
             return host;
         }
-        const indexPath = core_2.join(core_2.normalize(options.path), 'index.ts');
+        const indexPath = core_1.join(core_1.normalize(options.path), 'index.ts');
         const source = readIntoSourceFile(host, indexPath);
         const componentRelativePath = core_1.strings.dasherize(options.name) +
             (options.type ? '.' : '') +
@@ -220,14 +197,14 @@ function addClassExportToIndexFile(options) {
 exports.addClassExportToIndexFile = addClassExportToIndexFile;
 function insertDirectoryImport(source, fileToEdit, directoryName) {
     const rootNode = source;
-    const allImports = ast_utils_1.findNodes(rootNode, ts_1.SyntaxKind.ImportDeclaration);
-    const useStrict = ast_utils_1.findNodes(rootNode, ts_1.isStringLiteral).filter((n) => n.text === 'use strict');
+    const allImports = ast_utils_1.findNodes(rootNode, ts.SyntaxKind.ImportDeclaration);
+    const useStrict = ast_utils_1.findNodes(rootNode, ts.isStringLiteral).filter((n) => n.text === 'use strict');
     let fallbackPos = 0;
     if (useStrict.length > 0) {
         fallbackPos = useStrict[0].end;
     }
     const toInsert = `import * as ${core_1.strings.camelize('from-' + directoryName)} from './${directoryName}';\n`;
-    return insertAfterLastOccurrence(allImports, toInsert, fileToEdit, fallbackPos, ts_1.SyntaxKind.StringLiteral);
+    return insertAfterLastOccurrence(allImports, toInsert, fileToEdit, fallbackPos, ts.SyntaxKind.StringLiteral);
 }
 function addSymbolToNgModuleMetadata(source, ngModulePath, metadataField, directoryName, symbolName, importStatement = true) {
     const nodes = ast_utils_1.getDecoratorMetadata(source, 'NgModule', '@angular/core');
@@ -274,7 +251,7 @@ function addSymbolToNgModuleMetadata(source, ngModulePath, metadataField, direct
     }
     const assignment = matchingProperties[0];
     // If it's not an array, nothing we can do really.
-    if (assignment.initializer.kind !== ts_1.SyntaxKind.ArrayLiteralExpression) {
+    if (assignment.initializer.kind !== ts.SyntaxKind.ArrayLiteralExpression) {
         return [];
     }
     const arrLiteral = assignment.initializer;
@@ -295,7 +272,7 @@ function addSymbolToNgModuleMetadata(source, ngModulePath, metadataField, direct
     }
     let toInsert;
     let position = node.getEnd();
-    if (node.kind == ts_1.SyntaxKind.ArrayLiteralExpression) {
+    if (node.kind == ts.SyntaxKind.ArrayLiteralExpression) {
         // We found the field but it's empty. Insert it just before the `]`.
         position--;
         toInsert = `\n${core_1.tags.indentBy(4) `${symbolName}`}\n  `;
@@ -379,3 +356,49 @@ function addDeclarationToModuleFile(options) {
     };
 }
 exports.addDeclarationToModuleFile = addDeclarationToModuleFile;
+function getJsonValueNode(nodes, key) {
+    const jsonEntryNode = nodes.filter((node) => node.kind === ts.SyntaxKind.PropertyAssignment && node.name.text === key);
+    if (!jsonEntryNode || jsonEntryNode.length === 0) {
+        return null;
+    }
+    const children = jsonEntryNode[0].getChildren();
+    if (!children || children.length < 3) {
+        return null;
+    }
+    // the first item in the array will be the key, the second will be the ':', and the third will be the value
+    // here we only consider the case in which we have another object as value
+    const value = children[2].getChildren().filter((node) => node.kind === ts.SyntaxKind.SyntaxList);
+    if (!value || value.length === 0) {
+        return null;
+    }
+    return value[0];
+}
+function addPathHelper(source, projectPrefix, moduleName) {
+    const compilerOptionsNode = getJsonValueNode(ast_utils_1.getSourceNodes(source), 'compilerOptions');
+    if (!compilerOptionsNode) {
+        return [];
+    }
+    const paths = getJsonValueNode(compilerOptionsNode.getChildren(), 'paths');
+    if (!paths) {
+        return [];
+    }
+    const toInsert = `${paths.getText() ? ',' : ''}\n\t\t\t"@${projectPrefix}/${moduleName}/*": ["${projectPrefix}/${moduleName}/*"]`;
+    return [
+        new change_1.InsertChange('/tsconfig.json', paths.end, toInsert)
+    ];
+}
+function addPathToTsconfig(options, project) {
+    return (host) => {
+        const source = readIntoSourceFile(host, '/tsconfig.json');
+        const declarationChanges = addPathHelper(source, project.prefix, options.name);
+        const declarationRecorder = host.beginUpdate('/tsconfig.json');
+        for (const change of declarationChanges) {
+            if (change instanceof change_1.InsertChange) {
+                declarationRecorder.insertLeft(change.pos, change.toAdd);
+            }
+        }
+        host.commitUpdate(declarationRecorder);
+        return host;
+    };
+}
+exports.addPathToTsconfig = addPathToTsconfig;

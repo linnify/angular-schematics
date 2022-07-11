@@ -12,7 +12,7 @@ export function enumSchematics(options: Schema): Rule {
     options.type = 'enum';
 
     return chain([
-      generateComponentExternal(options, 'interface'),
+      generateComponentExternal(options, 'enum'),
       addClassExportToIndexFile(options)
     ]);
   };

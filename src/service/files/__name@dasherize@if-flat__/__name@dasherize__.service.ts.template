@@ -1,7 +1,8 @@
-import { Injectable } from '@angular/core';
+import { Injectable } from '@angular/core'; <% if(repo) { %>
+import { <%= classify(name) %>Repository } from '@<%= appPrefix %>/<%= module %>/repositories'; <% } %>
 
 @Injectable()
 export class <%= classify(name) %>Service {
 
-  constructor() { }
+  constructor(<% if(repo) { %>private <%= camelize(name) %>Repository:  <%= classify(name) %>Repository<% } %>) { }
 }

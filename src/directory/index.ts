@@ -9,28 +9,19 @@ import {
   Tree,
   url
 } from '@angular-devkit/schematics';
-import {createDirectoryTemplateSource} from '../utils/shared-utils';
+import {createDirectoryTemplateSource, setOptions} from '../utils/shared-utils';
 import {Schema} from './schema';
 import {addDeclarationToModuleFile} from '../utils/imports-utils';
 import {normalize} from '@angular-devkit/core';
 
-const workspace_1 = require("@schematics/angular/utility/workspace");
-const find_module_1 = require("@schematics/angular/utility/find-module");
-const schematics_1 = require("@angular-devkit/schematics");
+import {findModuleFromOptions} from '@schematics/angular/utility/find-module';
 
 // You don't have to export the function as default. You can also have more than one rule factory
 // per file.
 export function directory(options: Schema): Rule {
   return async (host: Tree, _context: SchematicContext) => {
-    const workspace = await workspace_1.getWorkspace(host);
-    const project = workspace.projects.get(options.project);
-    if (!project) {
-      throw new schematics_1.SchematicsException(`Project "${options.project}" does not exist.`);
-    }
-    if (options.path === undefined) {
-      options.path = workspace_1.buildDefaultPath(project);
-    }
-    options.module = find_module_1.findModuleFromOptions(host, options);
+    await setOptions(host, options);
+    options.module = findModuleFromOptions(host, options);
 
     let templateSource;
 
