@@ -1,0 +1,67 @@
+import { Component, OnInit<% if(nestedForm){ %>, Input<% } %> } from '@angular/core';
+import { FormBuilder, FormGroup<% if (hasValidators) { %>, Validators <% } %><% if (nestedForm) { %>, ValidatorFn <% } %><% if(controls.some(control => control.type === 'array')) { %>, FormArray<% } %><% if(controls.some(control => control.type === 'control')) { %>, FormControl<% } %> } from '@angular/forms';
+
+@Component({
+  selector: '<%= selector %>',
+  templateUrl: `
+    <form
+      [formGroup]="form"
+      fxLayout="column"
+    > <% for(let control of controls){ %>
+      <% if(!control.component){ %><! --- <%= control.name %> control component ---><% } else { %><<%= control.component %>
+        [control]="<%= camelize(control.name) %>Control"<% if(control.label){ %>
+        [label]="<%= control.label %>"<% } %>
+      ></<%= control.component %>><% } %><% } %><% if(buttonLabel){ %>
+      <<%= prefix %>-button [label]="<%= buttonLabel %>" (press)="onSubmit()"></<%= prefix %>-button><% } %>
+    </form>
+  `,
+  styleUrls: ['./<%= dasherize(name) %>-form.component.<%= style %>']<% if(!!viewEncapsulation) { %>,
+  encapsulation: ViewEncapsulation.<%= viewEncapsulation %><% } if (changeDetection !== 'Default') { %>,
+  changeDetection: ChangeDetectionStrategy.<%= changeDetection %><% } %>
+})
+export class <%= classify(name) %>FormComponent implements OnInit {
+  <% if(!nestedForm){ %>form: FormGroup;<% } else { %>@Input() form: FormGroup;<% } %>
+
+  constructor(private formBuilder: FormBuilder) { }
+
+  ngOnInit() {
+    this.initForm();
+  }
+  <% for(let control of controls){ %>
+  get <%= camelize(control.name) %><% if(control.type === 'control'){ %>Control(): FormControl<% } %><% if(control.type === 'array'){ %>Array(): FormArray<% } %><% if(control.type === 'group'){ %>Group(): FormGroup<% } %>{
+    return this.form.get('<%= camelize(control.name) %>') as <% if(control.type === 'control'){ %>FormControl<% } %><% if(control.type === 'array'){ %>FormArray<% } %><% if(control.type === 'group'){ %>FormGroup<% } %>;
+  }
+  <% } %>
+  get value(): any{
+    const _value: any = {};
+    <% for(let control of controls){ %><% if(control.type === 'control'){ %>
+    _value.<%= control.name %> = this.<%= camelize(control.name) %>Control.value;<% } %><% } %>
+
+    return _value;
+  }
+  <% if(buttonLabel){ %>
+  onSubmit(): void{}<% } %>
+
+  private initForm(): void {<% if(!nestedForm) { %>
+    this.form = this.formBuilder.group({<% for(let i = 0; i < controls.length; i++) { %>
+      <%= camelize(controls[i].name) %>: <% if(controls[i].type === 'control'){ %>[<% if(controls[i].disabled !== undefined){ %>{value: <%= (controls[i].initialValue === undefined ? 'null' : controls[i].initialValue) %>, disabled: <%= controls[i].disabled %>}<% } else { %><%= (controls[i].initialValue === undefined ? 'null' : controls[i].initialValue) %><% } %><% if(controls[i].validators){ %>, <%= controls[i].validators %><% } %>]<% } %><% if(controls[i].type === 'array'){ %>this.formBuilder.array([])<% } %><% if(controls[i].type === 'group'){ %>this.formBuilder.group({})<% } %><% if(i !== controls.length - 1){ %>,<% } %><% } %>
+    });<% } else { %><% for(let control of controls) { %>
+    <% if(control.type === 'control'){ %>this.addControl('<%= control.name %>'<% if(control.initialValue || control.validators){ %>, <%= (control.initialValue === undefined ? 'null' : control.initialValue) %><% if(control.validators){ %>, [<%= control.validators[0].replace('[', '') + control.validators.substring(1, control.validators.length-1) + control.validators[control.validators.length-1].replace(']', '') %>]<% } %><% } %>);<% } %><% if(control.type === 'array'){ %>this.form.addControl('<%= control.name %>', this.formBuilder.array([]))<% } %><% if(control.type === 'group'){ %>this.form.addControl('<%= control.name %>', this.formBuilder.group({}))<% } %><% } %><% } %>
+  }
+  <% if(nestedForm) { %>
+  private addControl(
+    name: string,
+    value: any = null,
+    validators: ValidatorFn[] = []
+  ): void {
+    if (this.form.get(name)) {
+      this.form.get(name).patchValue(value, [...validators]);
+      return;
+    }
+
+    this.form.addControl(
+      name,
+      this.formBuilder.control(value, [...validators])
+    );
+  }<% } %>
+}

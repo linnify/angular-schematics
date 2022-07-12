@@ -107,7 +107,7 @@
     "repositories": {
       "type": "boolean",
       "description": "Whether the repositories directory should be create in the module or not",
-      "default": false
+      "default": true
     },
     "types": {
       "type": "boolean",
