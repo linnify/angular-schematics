@@ -11,7 +11,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.component = void 0;
 const schematics_1 = require("@angular-devkit/schematics");
-const validation_1 = require("@schematics/angular/utility/validation");
 const core_1 = require("@angular-devkit/core");
 const imports_utils_1 = require("../utils/imports-utils");
 const shared_utils_1 = require("../utils/shared-utils");
@@ -32,8 +31,6 @@ function component(options) {
         const project = yield shared_utils_1.setOptions(host, options);
         options.selector =
             options.selector || buildSelector(options, (project && project.prefix) || '');
-        validation_1.validateName(options.name);
-        validation_1.validateHtmlSelector(options.selector);
         options.type = options.type != null ? options.type : 'Component';
         const componentOptions = Object.assign({}, options);
         delete componentOptions.skipIndexImport;

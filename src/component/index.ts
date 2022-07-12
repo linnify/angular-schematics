@@ -1,5 +1,4 @@
 import {chain, Rule, Tree} from '@angular-devkit/schematics';
-import {validateName, validateHtmlSelector} from '@schematics/angular/utility/validation'
 import {strings} from '@angular-devkit/core'
 
 import {addDeclarationToIndexFile} from '../utils/imports-utils';
@@ -23,8 +22,6 @@ export function component(options: any): Rule {
     const project = await setOptions(host, options);
     options.selector =
       options.selector || buildSelector(options, (project && project.prefix) || '');
-    validateName(options.name);
-    validateHtmlSelector(options.selector);
     options.type = options.type != null ? options.type : 'Component';
 
     const componentOptions = Object.assign({}, options);

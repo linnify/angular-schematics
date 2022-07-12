@@ -12,6 +12,7 @@ export function service(options: Schema): Rule {
 
     const flat = options.flat;
     options.flat = true;
+    options.project = project;
 
     const module = parseModuleName(options.path, 'services');
     const repoPath = normalize(options.path.replace('services', 'repositories'));
@@ -21,12 +22,11 @@ export function service(options: Schema): Rule {
       module,
       flat: options.flat,
       name: options.name,
-      project: options.project,
       skipImport: true,
       path: repoPath
     };
 
-    let hasRepoDirectory;
+    let hasRepoDirectory = true;
     let repoDirectoryOptions;
     const indexPath = join(normalize(repoPath), 'index.ts');
     const text = host.read(indexPath);
@@ -35,7 +35,6 @@ export function service(options: Schema): Rule {
       repoDirectoryOptions = {
         name: 'repositories',
         module,
-        project: options.project,
         path: modulePath
       }
     }

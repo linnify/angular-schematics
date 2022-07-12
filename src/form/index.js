@@ -43,7 +43,6 @@ function form(options) {
         options.name = options.name + '-form';
         options.selector =
             options.selector || buildSelector(options, (project && project.prefix) || '');
-        validation_1.validateName(options.name);
         validation_1.validateHtmlSelector(options.selector);
         options.type = options.type != null ? options.type : 'Component';
         const skipStyleFile = options.inlineStyle || options.style === schema_1.Style.None;

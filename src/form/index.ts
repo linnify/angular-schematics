@@ -9,12 +9,12 @@ import {
   Tree,
   url
 } from '@angular-devkit/schematics';
-import {generateFromFiles, setOptions} from '../utils/shared-utils';
+import {setOptions} from '../utils/shared-utils';
 import {addDeclarationToIndexFile, findModuleFromOptions} from '../utils/imports-utils';
 
 import {join, normalize, strings} from '@angular-devkit/core';
 import {FormConfig} from './types/classes';
-import {validateHtmlSelector, validateName} from '@schematics/angular/utility/validation';
+import {validateHtmlSelector} from '@schematics/angular/utility/validation';
 import {Style} from '@schematics/angular/component/schema';
 
 function buildSelector(options, projectPrefix) {
@@ -51,7 +51,6 @@ export function form(options: any): Rule {
     options.name = options.name + '-form';
     options.selector =
       options.selector || buildSelector(options, (project && project.prefix) || '');
-    validateName(options.name);
     validateHtmlSelector(options.selector);
     options.type = options.type != null ? options.type : 'Component';
 

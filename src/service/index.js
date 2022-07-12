@@ -20,6 +20,7 @@ function service(options) {
         options.type = 'service';
         const flat = options.flat;
         options.flat = true;
+        options.project = project;
         const module = shared_utils_1.parseModuleName(options.path, 'services');
         const repoPath = core_1.normalize(options.path.replace('services', 'repositories'));
         const modulePath = core_1.normalize(options.path.replace('services', ''));
@@ -27,11 +28,10 @@ function service(options) {
             module,
             flat: options.flat,
             name: options.name,
-            project: options.project,
             skipImport: true,
             path: repoPath
         };
-        let hasRepoDirectory;
+        let hasRepoDirectory = true;
         let repoDirectoryOptions;
         const indexPath = core_1.join(core_1.normalize(repoPath), 'index.ts');
         const text = host.read(indexPath);
@@ -40,7 +40,6 @@ function service(options) {
             repoDirectoryOptions = {
                 name: 'repositories',
                 module,
-                project: options.project,
                 path: modulePath
             };
         }
